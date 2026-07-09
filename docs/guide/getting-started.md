@@ -2,6 +2,35 @@
 
 This page walks from installation to the first print job, helping you confirm that the PrintBridge Agent, allowlists, and SDK are connected correctly.
 
+## Why PrintBridge
+
+Modern browsers cannot directly access local printers.
+
+PrintBridge provides a secure local agent between your web application and printers.
+
+### How It Differs from Traditional Web Printing Controls
+
+PrintBridge is not a traditional Web printing control. [C-Lodop / Lodop](https://www.lodop.ne/) is better at print design, form printing, tables, barcodes, and printing page content; PrintBridge focuses on being an open-source local print agent, remote task polling, raw commands, CLI operations, and private integration.
+
+If your business system already generates PDF, images, Office files, or device commands such as ESC/POS, TSPL, ZPL, EPL, and PCL, PrintBridge is more like a stable, auditable, and customizable local print bridge.
+
+### How It Works
+
+```text
+Web page / remote business server
+  |
+  | Sends jobs over WebSocket, or polls remote jobs over HTTP
+  v
+PrintBridge
+  |
+  | Verifies sources, downloads files, converts formats, and enters a serial queue
+  v
+System print queue
+  |
+  v
+Printer driver and printer
+```
+
 ## 1. Download and Start PrintBridge
 
 Download the installer for your system from [GitHub Releases](https://github.com/vergil-lai/print-bridge/releases).

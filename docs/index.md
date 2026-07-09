@@ -4,8 +4,8 @@ heroCarousel: true
 
 hero:
     name: "PrintBridge"
-    text: "A local print agent that bridges web applications and printers."
-    tagline: An open-source local print Agent that runs on the user's computer. Trusted ERP, WMS, OMS, and POS systems can connect to the local Agent through the SDK and submit PDF, image, Office, and raw print jobs to the system print queue.
+    text: "A local print agent that enables silent printing from web applications to local printers."
+    tagline: An open-source local print agent that runs on the user's computer. Trusted ERP, WMS, OMS, and POS systems can connect to the local agent through the SDK and submit PDF, image, Office, and raw print jobs to the system print queue.
     actions:
         - theme: brand
           text: Download PrintBridge

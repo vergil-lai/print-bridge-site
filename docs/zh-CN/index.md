@@ -4,7 +4,7 @@ heroCarousel: true
 
 hero:
     name: "PrintBridge"
-    text: "连接 Web 应用与本地打印机的开源打印代理"
+    text: "一个连接 Web 应用与本地打印机的开源打印代理，让网页系统实现静默打印。"
     tagline: 运行在用户电脑上的开源本机打印 Agent。受信任的 ERP、WMS、OMS 或收银系统可以通过 SDK 连接本机 Agent，把 PDF、图片、Office 文件和 raw 指令提交到系统打印队列。
     actions:
         - theme: brand

@@ -2,6 +2,35 @@
 
 这一页从下载安装到完成第一单打印，帮你确认 PrintBridge Agent、白名单和 SDK 都已经连通。
 
+## 为什么需要 PrintBridge
+
+现代浏览器不能直接访问本地打印机。
+
+PrintBridge 在你的 Web 应用和打印机之间提供一个安全的本机打印代理。
+
+### 和传统 Web 打印控件的区别
+
+PrintBridge 不是传统意义上的 Web 打印控件。[C-Lodop / Lodop](https://www.lodop.ne/) 更擅长打印设计、套打、表格、条码和页面内容打印；PrintBridge 更关注开源本地打印代理、远程任务轮询、原始打印指令（Raw Commands）、CLI 运维和可私有化集成。
+
+如果业务系统已经生成好 PDF、图片、Office 文件或 ESC/POS、TSPL、ZPL、EPL、PCL 等设备指令，PrintBridge 会更像一个稳定、可审计、可改造的本机打印桥接层。
+
+### 工作方式
+
+```text
+Web 页面 / 远程业务服务器
+  |
+  | WebSocket 下发任务，或 HTTP 轮询远程任务
+  v
+PrintBridge
+  |
+  | 校验来源、下载文件、转换格式、进入串行队列
+  v
+系统打印队列
+  |
+  v
+打印机驱动与打印机
+```
+
 ## 1. 下载并启动 PrintBridge
 
 在 [GitHub Releases](https://github.com/vergil-lai/print-bridge/releases) 下载适合当前系统的安装包。
