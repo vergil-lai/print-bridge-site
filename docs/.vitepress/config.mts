@@ -22,7 +22,9 @@ function alternatePath(relativePath: string, locale: "en" | "zh-CN") {
   const withoutLocale = relativePath.replace(/^zh-CN\//, "");
 
   if (locale === "zh-CN") {
-    return withoutLocale === "index.md" ? "zh-CN/index.md" : `zh-CN/${withoutLocale}`;
+    return withoutLocale === "index.md"
+      ? "zh-CN/index.md"
+      : `zh-CN/${withoutLocale}`;
   }
 
   return withoutLocale;
@@ -72,9 +74,10 @@ export default defineConfig({
     root: {
       label: "English",
       lang: "en",
-      title: "PrintBridge",
+      title:
+        "PrintBridge - Open Source Silent Printing Agent for Web Applications",
       description:
-        "A local print agent that enables silent printing from web applications to local printers.",
+        "PrintBridge is an open-source local print agent that enables silent printing from web applications to local printers. Supports PDF, Office, ESC/POS, ZPL and raw printer commands.",
       themeConfig: {
         logo: {
           src: "/brand/app-icon.png",
@@ -121,9 +124,9 @@ export default defineConfig({
     "zh-CN": {
       label: "中文",
       lang: "zh-CN",
-      title: "PrintBridge",
+      title: "PrintBridge - 开源 Web 静默打印代理",
       description:
-        "一个连接 Web 应用与本地打印机的开源打印代理，让网页系统实现静默打印。",
+        "PrintBridge 是一个开源本地打印代理，让 Web 应用实现向本地打印机的静默打印。支持 PDF、Office 文档、ESC/POS、ZPL 以及原始打印指令。",
       themeConfig: {
         logo: {
           src: "/brand/app-icon.png",
