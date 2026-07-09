@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://printbridge.pages.dev/sitemap.xml
