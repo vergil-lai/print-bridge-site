@@ -274,7 +274,12 @@ onMounted(async () => {
 }
 
 .download-action:hover {
+  color: #fff;
   background: var(--vp-c-brand-2);
+}
+
+.download-action:focus-visible {
+  color: #fff;
 }
 
 .download-action.missing {
