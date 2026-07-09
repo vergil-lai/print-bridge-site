@@ -41,9 +41,12 @@ export default defineConfig({
     ["link", { rel: "icon", type: "image/png", href: "/brand/app-icon.png" }],
   ],
   transformPageData(pageData) {
-    const title = pageData.title
-      ? `${pageData.title} | PrintBridge`
-      : "PrintBridge";
+    let title = "PrintBridge";
+    if (pageData.frontmatter.titleTemplate === false && pageData.title) {
+      title = pageData.title;
+    } else if (pageData.title) {
+      title = `${pageData.title} | PrintBridge`;
+    }
     const description =
       pageData.description ||
       pageData.frontmatter.description ||
