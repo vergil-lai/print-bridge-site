@@ -1,0 +1,30 @@
+---
+layout: home
+heroCarousel: true
+
+hero:
+    name: "PrintBridge"
+    text: "连接 Web 应用与本地打印机的开源打印代理"
+    tagline: 运行在用户电脑上的开源本机打印 Agent。受信任的 ERP、WMS、OMS 或收银系统可以通过 SDK 连接本机 Agent，把 PDF、图片、Office 文件和 raw 指令提交到系统打印队列。
+    actions:
+        - theme: brand
+          text: 下载 PrintBridge
+          link: /zh-CN/download
+        - theme: alt
+          text: 查看 SDK 接入
+          link: /zh-CN/guide/sdk
+
+features:
+    - title: 本机 Agent
+      details: PrintBridge 常驻用户电脑，负责接收任务、校验来源、下载或转换文件，并提交到系统打印队列。
+    - title: 浏览器 JSSDK
+      details: Web 页面通过 print-bridge-sdk 连接本机 WebSocket 服务，下发单个或批量打印任务。
+    - title: 多种打印格式
+      details: 支持 PDF、PNG/JPEG 图片、Office 文件，以及 ESC/POS、TSPL、ZPL、EPL、PCL 等 raw 指令。
+    - title: 企业部署
+      details: 支持 Origin/IP 白名单、远程任务轮询、CLI 运维和加密配置导入导出，适合仓库、门店和工位批量部署。
+    - title: 远程打印任务
+      details: 业务服务器集中生成任务，本机 Agent 定时拉取、下载、排队打印，并把 accepted、success 或 failed 状态回报给服务器。
+    - title: 开源可私有化
+      details: 可自托管、可审计、可二次集成，适合接入企业自有 ERP、WMS、OMS 或收银系统。
+---

@@ -1,0 +1,51 @@
+{
+  "version": "0.1.3",
+  "notes": "See the assets to download and install this version.",
+  "pub_date": "2026-07-08T10:07:43.120Z",
+  "platforms": {
+    "darwin-aarch64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUzRST1NVVVBjVTg1OE1KOHUySnJhNThwTTNGQjB0SVI0YVJ2bHk1Q0tDL0E2WjRjUlNDN0FBem8vUE1tVEN5RCs1Nm1LMkhlaWViYjlqWGpJVHZpRmUxdHRROGptNmd3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgzNTAyMjM3CWZpbGU6UHJpbnRCcmlkZ2UuYXBwLnRhci5negp4c0IyRm0rS0FkZGN4ZzRROG5hR0J2MnFDbmxpeVFyQmVjNDlDTUJ5bEJ0SFVRM1NqVDFKdDVYSTBTZHlGbFhPWkV1UFhWMjhVVTNRNHd5ZkVYd1FDdz09Cg==",
+      "url": "https://github.com/vergil-lai/print-bridge/releases/download/printbridge-v0.1.3/PrintBridge_0.1.3_aarch64.app.tar.gz"
+    },
+    "darwin-aarch64-app": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUzRST1NVVVBjVTg1OE1KOHUySnJhNThwTTNGQjB0SVI0YVJ2bHk1Q0tDL0E2WjRjUlNDN0FBem8vUE1tVEN5RCs1Nm1LMkhlaWViYjlqWGpJVHZpRmUxdHRROGptNmd3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgzNTAyMjM3CWZpbGU6UHJpbnRCcmlkZ2UuYXBwLnRhci5negp4c0IyRm0rS0FkZGN4ZzRROG5hR0J2MnFDbmxpeVFyQmVjNDlDTUJ5bEJ0SFVRM1NqVDFKdDVYSTBTZHlGbFhPWkV1UFhWMjhVVTNRNHd5ZkVYd1FDdz09Cg==",
+      "url": "https://github.com/vergil-lai/print-bridge/releases/download/printbridge-v0.1.3/PrintBridge_0.1.3_aarch64.app.tar.gz"
+    },
+    "darwin-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUzRST1NVVVBjVXpLUkRxUm9hRHU0dFpmR3hZeU5BT2FMMjgwY1l0ekhnazVYbGJwekwzd2drV3lEL2hRTlQ0eWNtc2F5Vll4dElKc0Q4ZUVBLy9YTm9pNEQ0ck9rY1FnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgzNTAyNjExCWZpbGU6UHJpbnRCcmlkZ2UuYXBwLnRhci5negpKcVU3WmpERGo3VVkxaXZpaFQrNkczUjZGamZyeFRxbDRSRU5TSEE0Mk9qRjc0VDBnM0xRM1RIUWMrSnFIQTNZSjRIUHBuTk9lNTZWb1VleGdBZVhCdz09Cg==",
+      "url": "https://github.com/vergil-lai/print-bridge/releases/download/printbridge-v0.1.3/PrintBridge_0.1.3_x64.app.tar.gz"
+    },
+    "darwin-x86_64-app": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUzRST1NVVVBjVXpLUkRxUm9hRHU0dFpmR3hZeU5BT2FMMjgwY1l0ekhnazVYbGJwekwzd2drV3lEL2hRTlQ0eWNtc2F5Vll4dElKc0Q4ZUVBLy9YTm9pNEQ0ck9rY1FnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgzNTAyNjExCWZpbGU6UHJpbnRCcmlkZ2UuYXBwLnRhci5negpKcVU3WmpERGo3VVkxaXZpaFQrNkczUjZGamZyeFRxbDRSRU5TSEE0Mk9qRjc0VDBnM0xRM1RIUWMrSnFIQTNZSjRIUHBuTk9lNTZWb1VleGdBZVhCdz09Cg==",
+      "url": "https://github.com/vergil-lai/print-bridge/releases/download/printbridge-v0.1.3/PrintBridge_0.1.3_x64.app.tar.gz"
+    },
+    "linux-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUzRST1NVVVBjVTZVVXVlQjd4bFVTRlNFVzE1MFRLWlNOOTNheFRiV2pqci9YNUtPdXM1dzFQc3d4LzBIaEZLaEJaR2pmc2dHTG8xVG52S2VpOGQ0WXdaQk1ESGlMcUE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgzNTAzODkzCWZpbGU6UHJpbnRCcmlkZ2VfMC4xLjNfYW1kNjQuQXBwSW1hZ2UKQlN3ejA4ZEF1L3gvdTErY3dTTlVsdk1CQVFMdDVuR1FZZ3ZvK1NVTjVQSlpxTEdlNVFjMTBVL3N0eFl1ckxubmZjWUJOUzN4UFV3VXQ2V1VwdENxREE9PQo=",
+      "url": "https://github.com/vergil-lai/print-bridge/releases/download/printbridge-v0.1.3/PrintBridge_0.1.3_amd64.AppImage"
+    },
+    "linux-x86_64-appimage": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUzRST1NVVVBjVTZVVXVlQjd4bFVTRlNFVzE1MFRLWlNOOTNheFRiV2pqci9YNUtPdXM1dzFQc3d4LzBIaEZLaEJaR2pmc2dHTG8xVG52S2VpOGQ0WXdaQk1ESGlMcUE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgzNTAzODkzCWZpbGU6UHJpbnRCcmlkZ2VfMC4xLjNfYW1kNjQuQXBwSW1hZ2UKQlN3ejA4ZEF1L3gvdTErY3dTTlVsdk1CQVFMdDVuR1FZZ3ZvK1NVTjVQSlpxTEdlNVFjMTBVL3N0eFl1ckxubmZjWUJOUzN4UFV3VXQ2V1VwdENxREE9PQo=",
+      "url": "https://github.com/vergil-lai/print-bridge/releases/download/printbridge-v0.1.3/PrintBridge_0.1.3_amd64.AppImage"
+    },
+    "linux-x86_64-deb": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUzRST1NVVVBjVTB4ZHRSRmU3RmU0eERRY0hlb1JLMGI0U056WElSSng3RzJWenNTZ0htWmUyYzYzS0FPT1dlNVUySUJGR0RUYjVZYkxoWkE0RnhrMjFINEVpaW9mT1FrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgzNTAzODkzCWZpbGU6UHJpbnRCcmlkZ2VfMC4xLjNfYW1kNjQuZGViClM0S210R0c3cDRGVENicTVmUERyMnN0WTJMMnF4MTUxWTFsbHNEcTJ6RVVRb01lWER2YVNFZVA1Z3I0WnVMcmVkV2pNVXIwMVorb1VsTmMvV2Y3L0NnPT0K",
+      "url": "https://github.com/vergil-lai/print-bridge/releases/download/printbridge-v0.1.3/PrintBridge_0.1.3_amd64.deb"
+    },
+    "linux-x86_64-rpm": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUzRST1NVVVBjVXdCU0FoLzJDd20xd1lTT3hxM0hJa1IvYU91UFpkWHZ2bllPZVQ5TGJGZXJQeS96UUROaUFpakEyWno0SFYyNnptR1Ziejd3OUhaQjZVQ1lTNzZLZ1E0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgzNTAzODkzCWZpbGU6UHJpbnRCcmlkZ2UtMC4xLjMtMS54ODZfNjQucnBtClRMSFRuTGtTZG15OUZhWWlqd3lSNnZGVkljNytmWG4yMTNBWUpZVVQwY0dLbE93RE53SWhGY2QwY28zWXZKREp4d0UwMkhWaE5TUXdWVUFFYTJaRUFRPT0K",
+      "url": "https://github.com/vergil-lai/print-bridge/releases/download/printbridge-v0.1.3/PrintBridge-0.1.3-1.x86_64.rpm"
+    },
+    "windows-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUzRST1NVVVBjVTVUYnZiSHNvaFFEMkRFVDNIQ3NvRlZDVkRlUE52akRtV3Vyd1Bjb0NpUDBXZk8zOHhmN3BTVVRUdEl1aWxuQjRxNzdvWVZqRlFIV01oZUpTd01ZekE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgzNTA1MjU2CWZpbGU6UHJpbnRCcmlkZ2VfMC4xLjNfeDY0X2VuLVVTLm1zaQppVWhkUjZTTDFnbWpYL1FzWnVsa0lWc0Rramh4UmZvY2QvQmpDbDk4Z2oxOGpoSHllZGFlcUhWUXh2S2w3SDgrTXVZWnpsZHVDdlpnSU5mc01lWTlEQT09Cg==",
+      "url": "https://github.com/vergil-lai/print-bridge/releases/download/printbridge-v0.1.3/PrintBridge_0.1.3_x64_en-US.msi"
+    },
+    "windows-x86_64-msi": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUzRST1NVVVBjVTVUYnZiSHNvaFFEMkRFVDNIQ3NvRlZDVkRlUE52akRtV3Vyd1Bjb0NpUDBXZk8zOHhmN3BTVVRUdEl1aWxuQjRxNzdvWVZqRlFIV01oZUpTd01ZekE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgzNTA1MjU2CWZpbGU6UHJpbnRCcmlkZ2VfMC4xLjNfeDY0X2VuLVVTLm1zaQppVWhkUjZTTDFnbWpYL1FzWnVsa0lWc0Rramh4UmZvY2QvQmpDbDk4Z2oxOGpoSHllZGFlcUhWUXh2S2w3SDgrTXVZWnpsZHVDdlpnSU5mc01lWTlEQT09Cg==",
+      "url": "https://github.com/vergil-lai/print-bridge/releases/download/printbridge-v0.1.3/PrintBridge_0.1.3_x64_en-US.msi"
+    },
+    "windows-x86_64-nsis": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUzRST1NVVVBjVTBwMlBUZDZLUXhZR25EdG1RUzFWUm01NE5pNjhqZnhFOThnWUJEWms2b25XU0NXNmdpcEZPeGVMTDhpSWc2Um5qZGRGSWljUW1hQWZMYWh3eGpPaWdrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgzNTA1MjU2CWZpbGU6UHJpbnRCcmlkZ2VfMC4xLjNfeDY0LXNldHVwLmV4ZQpydHpKc2YzVjhoSkhpT0NqMnJvc0pKYnRWQVk2cGUxaDlmd2F1ZGtDOVkvaGVtcWhQRTkyQlhLQzA5OUx6SFllNklEWW1kUFdneUxDN3VrV2FKOU1DQT09Cg==",
+      "url": "https://github.com/vergil-lai/print-bridge/releases/download/printbridge-v0.1.3/PrintBridge_0.1.3_x64-setup.exe"
+    }
+  }
+}

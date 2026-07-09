@@ -1,0 +1,16 @@
+{
+  "packageManager": "pnpm@11.7.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "docs:sync-release": "node scripts/sync-latest-release.mjs",
+    "docs:dev": "pnpm docs:sync-release && vitepress dev docs",
+    "docs:build": "pnpm docs:sync-release && vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "devDependencies": {
+    "@lucide/vue": "^1.23.0",
+    "vitepress": "^1.6.4"
+  }
+}
