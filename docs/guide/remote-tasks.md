@@ -1,3 +1,7 @@
+---
+description: Configure PrintBridge remote tasks so local Agents can poll a business server, print queued jobs, and report accepted, success, or failed status.
+---
+
 # Remote Tasks
 
 Remote tasks are for the pattern where a business server creates print jobs centrally and local Agents automatically pull and print them. This is a separate entry point from the browser SDK: the SDK is initiated by a web page connecting to the local Agent, while remote tasks are initiated by the local Agent polling the business server.

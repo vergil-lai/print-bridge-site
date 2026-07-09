@@ -1,3 +1,7 @@
+---
+description: 配置 PrintBridge 远程任务，让本机 Agent 定时从业务服务器拉取任务、自动打印，并上报 accepted、success 或 failed 状态。
+---
+
 # 远程任务
 
 远程任务适合“业务服务器集中生成打印任务，本地 Agent 自动拉取并打印”的场景。它和浏览器 SDK 是两条入口：SDK 由网页主动连接本机 Agent；远程任务由本机 Agent 定时访问业务服务器。

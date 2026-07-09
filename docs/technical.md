@@ -1,3 +1,7 @@
+---
+description: Technical reference for PrintBridge protocols, HTTP and WebSocket APIs, configuration format, CLI commands, status semantics, and platform printing boundaries.
+---
+
 # Technical Docs
 
 This page summarizes the PrintBridge protocol, APIs, configuration format, status semantics, and platform printing boundaries.

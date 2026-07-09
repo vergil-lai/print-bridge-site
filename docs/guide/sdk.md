@@ -1,3 +1,7 @@
+---
+description: Integrate print-bridge-sdk in browser applications to connect to the local PrintBridge Agent and submit PDF, image, Office, raw, or batch print jobs.
+---
+
 # SDK Integration
 
 `print-bridge-sdk` is the browser-side JSSDK for PrintBridge. It connects to the PrintBridge Agent on the user's computer and sends print jobs over WebSocket.

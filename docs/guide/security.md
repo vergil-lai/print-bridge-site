@@ -1,3 +1,7 @@
+---
+description: Understand PrintBridge security boundaries, including Origin allowlists, IP allowlists, service port exposure, and business-system authorization.
+---
+
 # Security Boundaries
 
 PrintBridge runs on the user's local machine and can access local printers. Deployment must only grant printing capability to trusted systems.

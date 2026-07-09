@@ -1,3 +1,7 @@
+---
+description: 使用 print-bridge-sdk 在浏览器应用中连接本机 PrintBridge Agent，下发 PDF、图片、Office、raw 指令和批量打印任务。
+---
+
 # SDK 接入
 
 `print-bridge-sdk` 是 PrintBridge 的浏览器端 JSSDK。它连接用户电脑上的 PrintBridge Agent，并通过 WebSocket 下发打印任务。

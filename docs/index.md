@@ -1,6 +1,7 @@
 ---
 layout: home
 heroCarousel: true
+description: PrintBridge is an open-source local print agent that enables silent printing from web applications to local printers, with SDK integration, remote task polling, raw commands, and private deployment support.
 
 hero:
     name: "PrintBridge"

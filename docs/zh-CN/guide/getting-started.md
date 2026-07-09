@@ -1,3 +1,7 @@
+---
+description: PrintBridge 快速开始指南，从安装本机 Agent、配置打印机和白名单，到安装 SDK 并发送第一单打印任务。
+---
+
 # 快速开始
 
 这一页从下载安装到完成第一单打印，帮你确认 PrintBridge Agent、白名单和 SDK 都已经连通。
@@ -10,7 +14,7 @@ PrintBridge 在你的 Web 应用和打印机之间提供一个安全的本机打
 
 ### 和传统 Web 打印控件的区别
 
-PrintBridge 不是传统意义上的 Web 打印控件。[C-Lodop / Lodop](https://www.lodop.ne/) 更擅长打印设计、套打、表格、条码和页面内容打印；PrintBridge 更关注开源本地打印代理、远程任务轮询、原始打印指令（Raw Commands）、CLI 运维和可私有化集成。
+PrintBridge 不是传统意义上的 Web 打印控件。C-Lodop / Lodop 更擅长打印设计、套打、表格、条码和页面内容打印；PrintBridge 更关注开源本地打印代理、远程任务轮询、原始打印指令（Raw Commands）、CLI 运维和可私有化集成。
 
 如果业务系统已经生成好 PDF、图片、Office 文件或 ESC/POS、TSPL、ZPL、EPL、PCL 等设备指令，PrintBridge 会更像一个稳定、可审计、可改造的本机打印桥接层。
 

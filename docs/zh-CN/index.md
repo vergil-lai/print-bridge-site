@@ -1,6 +1,7 @@
 ---
 layout: home
 heroCarousel: true
+description: PrintBridge 是连接 Web 应用与本地打印机的开源打印代理，支持 SDK 静默打印、远程任务轮询、raw 指令、配置导入导出和企业私有化部署。
 
 hero:
     name: "PrintBridge"

@@ -1,3 +1,7 @@
+---
+description: PrintBridge 技术文档，汇总协议、HTTP API、WebSocket API、配置格式、CLI 命令、状态语义和平台打印边界。
+---
+
 # 技术文档
 
 这一页汇总 PrintBridge 的协议、API、配置格式、状态语义和平台打印边界。

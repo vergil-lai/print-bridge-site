@@ -1,3 +1,7 @@
+---
+description: Get started with PrintBridge by installing the local Agent, configuring printer and allowlists, installing the SDK, and sending the first print job.
+---
+
 # Quick Start
 
 This page walks from installation to the first print job, helping you confirm that the PrintBridge Agent, allowlists, and SDK are connected correctly.
@@ -10,7 +14,7 @@ PrintBridge provides a secure local agent between your web application and print
 
 ### How It Differs from Traditional Web Printing Controls
 
-PrintBridge is not a traditional Web printing control. [C-Lodop / Lodop](https://www.lodop.ne/) is better at print design, form printing, tables, barcodes, and printing page content; PrintBridge focuses on being an open-source local print agent, remote task polling, raw commands, CLI operations, and private integration.
+PrintBridge is not a traditional Web printing control. C-Lodop / Lodop is better at print design, form printing, tables, barcodes, and printing page content; PrintBridge focuses on being an open-source local print agent, remote task polling, raw commands, CLI operations, and private integration.
 
 If your business system already generates PDF, images, Office files, or device commands such as ESC/POS, TSPL, ZPL, EPL, and PCL, PrintBridge is more like a stable, auditable, and customizable local print bridge.
 

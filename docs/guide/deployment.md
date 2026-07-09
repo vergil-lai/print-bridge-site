@@ -1,3 +1,7 @@
+---
+description: Deploy PrintBridge in warehouses, stores, and workstations with printer defaults, allowlists, remote task polling, CLI operations, and encrypted configuration import/export.
+---
+
 # Deployment and Configuration
 
 PrintBridge is designed for stable silent printing in warehouses, stores, production stations, and similar environments. One computer runs the Agent persistently. Business systems can connect directly through the SDK, or the Agent can actively pull remote tasks.
