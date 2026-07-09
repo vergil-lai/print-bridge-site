@@ -74,8 +74,7 @@ export default defineConfig({
     root: {
       label: "English",
       lang: "en",
-      title:
-        "PrintBridge - Open Source Silent Printing Agent for Web Applications",
+      title: "PrintBridge",
       description:
         "PrintBridge is an open-source local print agent that enables silent printing from web applications to local printers. Supports PDF, Office, ESC/POS, ZPL and raw printer commands.",
       themeConfig: {
@@ -124,7 +123,7 @@ export default defineConfig({
     "zh-CN": {
       label: "中文",
       lang: "zh-CN",
-      title: "PrintBridge - 开源 Web 静默打印代理",
+      title: "PrintBridge",
       description:
         "PrintBridge 是一个开源本地打印代理，让 Web 应用实现向本地打印机的静默打印。支持 PDF、Office 文档、ESC/POS、ZPL 以及原始打印指令。",
       themeConfig: {
