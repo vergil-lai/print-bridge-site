@@ -173,6 +173,24 @@ View or clear local task history.
 | `print-bridge task "JOB-001"` | `job_id` | Show the status event timeline for a specific task. |
 | `print-bridge task clear` | None | Clear local task history. |
 
+### `print-bridge serve`
+
+Run the local Agent without the Tauri GUI.
+
+| Command | Platform | Description |
+| --- | --- | --- |
+| `print-bridge serve` | Windows, macOS, Linux | Start the local HTTP/WebSocket service, print queue worker, and remote polling worker in the foreground. |
+| `print-bridge serve install` | Linux, macOS | Install the foreground serve command as a systemd user service or launchd LaunchAgent. |
+| `print-bridge serve uninstall` | Linux, macOS | Stop and remove the managed systemd user service or launchd LaunchAgent. |
+
+On Linux, `serve install` writes `~/.config/systemd/user/print-bridge.service`, reloads the user systemd daemon, and enables the service immediately.
+
+On macOS, `serve install` writes `~/Library/LaunchAgents/com.printbridge.agent.plist`, then loads and starts it with `launchctl`.
+
+Windows does not provide `serve install` or `serve uninstall`. Use the GUI tray app for regular Windows desktop deployments, or host `print-bridge serve` with an external Windows Service wrapper only after confirming that the service account can see the target printer.
+
+> **Note:** the GUI and `print-bridge serve` are currently mutually exclusive. If a PrintBridge Agent is already using the configured local port, the second entrypoint exits immediately and does not start another HTTP/WebSocket service, print queue worker, or remote polling worker.
+
 ## Configuration Import/Export Format
 
 The exported configuration file is a plain JSON wrapper. The internal payload is encrypted:

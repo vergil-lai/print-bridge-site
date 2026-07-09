@@ -85,10 +85,6 @@ function downloadUrl(item: DownloadItem): string {
   return manifest.value?.platforms[item.platformKey]?.url ?? releaseUrl
 }
 
-function isMissing(item: DownloadItem): boolean {
-  return Boolean(manifest.value) && !manifest.value?.platforms[item.platformKey]?.url
-}
-
 onMounted(async () => {
   try {
     const response = await fetch(cachedManifestUrl, { cache: 'no-store' })
@@ -146,7 +142,6 @@ onMounted(async () => {
             v-for="item in group.items"
             :key="item.platformKey"
             class="download-action"
-            :class="{ missing: isMissing(item) }"
             :href="downloadUrl(item)"
             target="_blank"
             rel="noreferrer"
@@ -280,10 +275,6 @@ onMounted(async () => {
 
 .download-action:focus-visible {
   color: #fff;
-}
-
-.download-action.missing {
-  background: var(--vp-c-text-3);
 }
 
 @media (max-width: 959px) {

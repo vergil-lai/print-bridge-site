@@ -55,9 +55,38 @@ print-bridge remote set-url "https://example.com/print-task"
 print-bridge remote enable
 
 print-bridge task
+print-bridge serve
+print-bridge serve install
+print-bridge serve uninstall
 ```
 
 CLI 直接读写与 GUI 相同的本机配置，适合批量部署、远程协助和无 GUI 环境。
+
+## 无 GUI `serve`
+
+`print-bridge serve` 会在不打开桌面 GUI 的情况下启动本机 Agent。它保持前台运行，启动 HTTP/WebSocket 服务、打印队列 worker 和远程轮询 worker，并把日志输出到终端。
+
+当工位电脑、小主机或无头环境需要长期运行 PrintBridge 时，可以使用这个入口。所在系统仍然必须能通过自己的打印栈看到目标打印机。
+
+Linux 和 macOS 可以把这个前台命令安装为系统托管的用户服务：
+
+```bash
+print-bridge serve install
+```
+
+- Linux 会安装 systemd user service：`~/.config/systemd/user/print-bridge.service`。
+- macOS 会安装 launchd LaunchAgent：`~/Library/LaunchAgents/com.printbridge.agent.plist`。
+- 生成的服务文件会指向当前 `print-bridge` 可执行文件，并使用同一套 CLI 配置和数据路径。
+
+删除托管服务：
+
+```bash
+print-bridge serve uninstall
+```
+
+Windows 不提供 `serve install` 和 `serve uninstall`。普通 Windows 桌面场景继续推荐使用 GUI 托盘常驻。如果确实需要无人值守 Windows Service，需要使用 WinSW、NSSM 等 wrapper，并单独验证服务账号能看到目标打印机。
+
+> **注意：** GUI 和 `print-bridge serve` 当前互斥运行。如果已经有一个 PrintBridge Agent 占用了当前本地端口，第二个入口会直接退出，不会再启动另一套服务或队列 worker。
 
 ## 远程任务轮询
 
@@ -83,4 +112,5 @@ PrintBridge Agent
 - 导出加密配置包。
 - 在其他工位导入配置包。
 - 使用 CLI 检查打印机、纸张和远程任务开关。
+- Linux/macOS 无 GUI 主机需要长期运行时，使用 `print-bridge serve install` 安装托管服务。
 - 在业务系统侧控制设备编号、用户权限和任务来源。

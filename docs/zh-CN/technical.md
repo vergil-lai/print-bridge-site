@@ -173,6 +173,24 @@ CLI 默认配置位置由系统决定，也可以用环境变量覆盖：
 | `print-bridge task "JOB-001"` | `job_id` | 查看指定任务的状态事件时间线。 |
 | `print-bridge task clear` | 无 | 清空本地任务历史。 |
 
+### `print-bridge serve`
+
+在不打开 Tauri GUI 的情况下运行本机 Agent。
+
+| 命令 | 平台 | 说明 |
+| --- | --- | --- |
+| `print-bridge serve` | Windows、macOS、Linux | 前台启动本地 HTTP/WebSocket 服务、打印队列 worker 和远程轮询 worker。 |
+| `print-bridge serve install` | Linux、macOS | 把前台 serve 命令安装为 systemd user service 或 launchd LaunchAgent。 |
+| `print-bridge serve uninstall` | Linux、macOS | 停止并删除托管的 systemd user service 或 launchd LaunchAgent。 |
+
+Linux 下，`serve install` 会写入 `~/.config/systemd/user/print-bridge.service`，刷新 user systemd，并立即启用服务。
+
+macOS 下，`serve install` 会写入 `~/Library/LaunchAgents/com.printbridge.agent.plist`，再通过 `launchctl` 加载并启动。
+
+Windows 不提供 `serve install` 和 `serve uninstall`。普通 Windows 桌面部署建议继续使用 GUI 托盘常驻；如果确实需要 Windows Service，需要通过外部 wrapper 托管 `print-bridge serve`，并先确认服务账号能看到目标打印机。
+
+> **注意：** GUI 和 `print-bridge serve` 当前互斥运行。如果已经有 PrintBridge Agent 占用当前本地端口，第二个入口会直接退出，不会再启动另一套 HTTP/WebSocket 服务、打印队列 worker 或远程轮询 worker。
+
 ## 配置导入导出格式
 
 配置导出文件是普通 JSON 外壳，内部 payload 使用加密内容保存：
