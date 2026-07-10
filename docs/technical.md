@@ -35,6 +35,20 @@ PrintBridge is a local print Agent. It is not a printer driver and does not repl
 - Office files: `docx`, `xlsx`, and `pptx`. The local Agent converts them to PDF first.
 - Raw commands: `data_base64` carries device commands such as ESC/POS, TSPL, ZPL, EPL, PCL, and PostScript.
 
+## HTML Rendering
+
+Every platform and runtime mode requires an installed Chromium-family browser for HTML-to-PDF rendering; native WebView fallbacks are not provided:
+
+| Platform | Browser renderer |
+| --- | --- |
+| Windows | Edge → Chrome → Chromium |
+| macOS | Chrome → Chromium |
+| Linux | Chrome → Chromium |
+
+Both the GUI and `print-bridge serve`, including systemd/launchd-managed service deployments, return renderer-unavailable when no supported browser is installed.
+
+The proxy safely blocks a rejected resource without `Referer` or `Origin`, but cannot reliably associate that request with the current HTML page. Task history may therefore omit `BlockedResource`, and the resulting PDF may omit that resource.
+
 ## Local Service
 
 Default WebSocket address:

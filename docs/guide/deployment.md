@@ -88,6 +88,18 @@ Windows does not provide `serve install` or `serve uninstall`. For regular Windo
 
 > **Note:** the GUI and `print-bridge serve` are currently mutually exclusive. If one PrintBridge Agent is already using the configured local port, the second entrypoint exits instead of starting another server or queue worker.
 
+## HTML Rendering Prerequisites
+
+Every platform and runtime mode requires an installed Chromium-family browser for HTML-to-PDF rendering; native WebView fallbacks are not provided:
+
+| Platform | Browser renderer |
+| --- | --- |
+| Windows | Edge → Chrome → Chromium |
+| macOS | Chrome → Chromium |
+| Linux | Chrome → Chromium |
+
+Both the GUI and `print-bridge serve`, including a systemd or launchd managed deployment, require a supported browser. Without one, an HTML task returns renderer-unavailable. Install a supported browser on any headless host that must process HTML tasks.
+
 ## Remote Task Polling
 
 Remote task polling fits the pattern where a business server creates tasks centrally and workstation Agents print automatically.
