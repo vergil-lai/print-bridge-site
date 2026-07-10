@@ -1,5 +1,5 @@
 ---
-description: Integrate print-bridge-sdk in browser applications to connect to the local PrintBridge Agent and submit PDF, image, Office, raw, or batch print jobs.
+description: Integrate print-bridge-sdk in browser applications to connect to the local PrintBridge Agent and submit PDF, image, Office, HTML, raw, or batch print jobs.
 ---
 
 # SDK Integration
@@ -73,6 +73,30 @@ await client.print({
 ```
 
 Office files support `docx`, `xlsx`, and `pptx`. The local Agent converts them to PDF before submitting them to the system print queue.
+
+## Print HTML
+
+```ts
+await client.print({
+  type: 'html',
+  fileUrl: 'https://example.com/invoice/1',
+  waitMs: 1000,
+  copies: 1,
+  paper: { widthMm: 210, heightMm: 297 },
+});
+
+await client.print({
+  type: 'raw-html',
+  html: '<main><h1>Invoice</h1></main>',
+  waitMs: 1000,
+  copies: 1,
+  paper: { widthMm: 210, heightMm: 297 },
+});
+```
+
+`html` requires an HTTP(S) `fileUrl`; `raw-html` requires a non-empty inline `html` string and does not accept `fileUrl`. `waitMs` is an integer from 0 to 30000 for HTML jobs. The SDK only serializes the task. The local Agent renders HTML to PDF before printing.
+
+The HTML page and all loaded resources may use only public HTTP/HTTPS addresses. Local, private-network, and `file:` resources are rejected.
 
 ## Print Raw Commands
 

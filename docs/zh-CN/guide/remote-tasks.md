@@ -121,12 +121,46 @@ raw 指令任务：
 | `batch_id` | 批量任务必填 | 批量任务 ID。 |
 | `jobs` | 批量任务必填 | 批量任务中的打印任务数组。 |
 | `job_id` | 是 | 打印任务 ID，也是本地远程任务去重键。已记录过的 `job_id` 不会重复入队。 |
-| `format` | 是 | `pdf`、`image`、`png`、`jpg`、`jpeg`、`docx`、`xlsx`、`pptx` 或 `raw`。 |
+| `format` | 是 | `pdf`、`image`、`png`、`jpg`、`jpeg`、`docx`、`xlsx`、`pptx`、`html`、`raw-html` 或 `raw`。 |
 | `printer_name` | 否 | 指定打印机。省略时使用本机默认打印机。 |
-| `file_url` | 文件任务必填 | PDF、图片和 Office 文件的下载地址。 |
+| `file_url` | 文件任务和 `html` 必填 | PDF、图片和 Office 文件的下载地址。`html` 必须使用公开 HTTP(S) URL；`raw-html` 不接受此字段。 |
 | `data_base64` | raw 任务必填 | raw 指令的 base64 内容。 |
-| `copies` | 否 | 打印份数。raw 任务不支持该字段。 |
-| `paper` | 否 | 纸张尺寸，例如 `{ "width_mm": 60, "height_mm": 40 }`。raw 任务不支持该字段。 |
+| `html` | `raw-html` 任务必填 | 非空内联 HTML。`html` 不接受此字段。 |
+| `wait_ms` | 否，仅 HTML 任务 | 渲染前等待时间，范围为 0 到 30000 毫秒。 |
+| `copies` | 否 | 打印份数。raw 任务不支持；HTML 任务支持。 |
+| `paper` | 否 | 纸张尺寸，例如 `{ "width_mm": 60, "height_mm": 40 }`。raw 任务不支持；HTML 任务支持。 |
+
+HTML URL 任务：
+
+```json
+{
+  "type": "print",
+  "request_id": "REQ-HTML-001",
+  "job_id": "JOB-HTML-001",
+  "format": "html",
+  "file_url": "https://example.com/invoice/1",
+  "wait_ms": 1000,
+  "copies": 1,
+  "paper": { "width_mm": 210, "height_mm": 297 }
+}
+```
+
+内联 HTML 任务：
+
+```json
+{
+  "type": "print",
+  "request_id": "REQ-RAW-HTML-001",
+  "job_id": "JOB-RAW-HTML-001",
+  "format": "raw-html",
+  "html": "<main><h1>Invoice</h1></main>",
+  "wait_ms": 1000,
+  "copies": 1,
+  "paper": { "width_mm": 210, "height_mm": 297 }
+}
+```
+
+两种 HTML 任务都由本机 Agent 渲染为 PDF。页面及其加载的所有资源只允许访问公开 HTTP/HTTPS 地址；本机、私网和 `file:` 资源会被拒绝。
 
 raw 任务只负责把 `data_base64` 解码后的字节提交给系统打印队列。纸张、份数、条码、RFID 等设备语言参数应由业务系统写入 raw 指令本身。
 
