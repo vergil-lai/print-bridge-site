@@ -33,7 +33,44 @@ PrintBridge is a local print Agent. It is not a printer driver and does not repl
 - PDF.
 - PNG/JPEG images.
 - Office files: `docx`, `xlsx`, and `pptx`. The local Agent converts them to PDF first.
+- HTML: `html` renders a public HTTP(S) `file_url`; `raw-html` renders caller-provided inline `html`. The local Agent converts both to PDF first.
 - Raw commands: `data_base64` carries device commands such as ESC/POS, TSPL, ZPL, EPL, PCL, and PostScript.
+
+## HTML Rendering
+
+Use `html` for an HTML page URL and `raw-html` for inline HTML. `html` requires `file_url` and does not accept inline `html`; `raw-html` requires a non-empty `html` field and does not accept `file_url`. Both accept `wait_ms` from 0 to 30000 milliseconds and support `copies` and `paper`.
+
+```json
+{
+  "type": "print",
+  "job_id": "JOB-HTML-001",
+  "format": "html",
+  "file_url": "https://example.com/invoice/1",
+  "wait_ms": 1000,
+  "copies": 1,
+  "paper": { "width_mm": 210, "height_mm": 297 }
+}
+```
+
+```json
+{
+  "type": "print",
+  "job_id": "JOB-RAW-HTML-001",
+  "format": "raw-html",
+  "html": "<main><h1>Invoice</h1></main>",
+  "wait_ms": 1000,
+  "copies": 1,
+  "paper": { "width_mm": 210, "height_mm": 297 }
+}
+```
+
+The JSSDK only serializes the task; the local Agent renders HTML to PDF and prints it. HTML pages and every loaded resource may access only public HTTP/HTTPS addresses. Local, private-network, and `file:` resources are rejected.
+
+No browser is bundled. Both the desktop GUI and `print-bridge serve` require an installed Chromium-family browser; native WebView fallbacks are not provided. The Agent looks for Edge → Chrome → Chromium on Windows, and Chrome → Chromium on macOS and Linux. Without a usable browser, HTML printing fails with renderer-unavailable (`RendererUnavailable`).
+
+The proxy still safely blocks a rejected resource without `Referer` or `Origin`, but cannot reliably associate that request with the current HTML page. Task history may therefore omit `BlockedResource`, and the resulting PDF may omit that resource.
+
+The renderer uses cooperative cancellation at its total deadline: it does not start later browser stages after timeout, while an already-started synchronous browser operation finishes its own bounded wait before cleanup.
 
 ## Local Service
 

@@ -1,5 +1,5 @@
 ---
-description: 使用 print-bridge-sdk 在浏览器应用中连接本机 PrintBridge Agent，下发 PDF、图片、Office、raw 指令和批量打印任务。
+description: 使用 print-bridge-sdk 在浏览器应用中连接本机 PrintBridge Agent，下发 PDF、图片、Office、HTML、raw 指令和批量打印任务。
 ---
 
 # SDK 接入
@@ -73,6 +73,30 @@ await client.print({
 ```
 
 Office 文件支持 `docx`、`xlsx`、`pptx`。本机 Agent 会先转换为 PDF，再提交到系统打印队列。
+
+## 打印 HTML
+
+```ts
+await client.print({
+  type: 'html',
+  fileUrl: 'https://example.com/invoice/1',
+  waitMs: 1000,
+  copies: 1,
+  paper: { widthMm: 210, heightMm: 297 },
+});
+
+await client.print({
+  type: 'raw-html',
+  html: '<main><h1>Invoice</h1></main>',
+  waitMs: 1000,
+  copies: 1,
+  paper: { widthMm: 210, heightMm: 297 },
+});
+```
+
+`html` 必须提供 HTTP(S) `fileUrl`；`raw-html` 必须提供非空内联 `html`，且不接受 `fileUrl`。HTML 任务的 `waitMs` 必须是 0 到 30000 的整数。SDK 只负责序列化任务，由本机 Agent 将 HTML 渲染为 PDF 后打印。
+
+HTML 页面及其加载的所有资源只允许访问公开 HTTP/HTTPS 地址；本机、私网和 `file:` 资源会被拒绝。
 
 ## 打印 raw 指令
 

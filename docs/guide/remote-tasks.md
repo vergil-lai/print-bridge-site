@@ -121,12 +121,46 @@ Batch task:
 | `batch_id` | Required for batch tasks | Batch task ID. |
 | `jobs` | Required for batch tasks | Array of print jobs inside the batch. |
 | `job_id` | Yes | Print job ID. It is also the local deduplication key for remote tasks. A recorded `job_id` will not be queued again. |
-| `format` | Yes | `pdf`, `image`, `png`, `jpg`, `jpeg`, `docx`, `xlsx`, `pptx`, or `raw`. |
+| `format` | Yes | `pdf`, `image`, `png`, `jpg`, `jpeg`, `docx`, `xlsx`, `pptx`, `html`, `raw-html`, or `raw`. |
 | `printer_name` | No | Target printer. If omitted, the local default printer is used. |
-| `file_url` | Required for file tasks | Download URL for PDF, image, and Office files. |
+| `file_url` | Required for file tasks and `html` | Download URL for PDF, image, and Office files. `html` requires a public HTTP(S) URL; `raw-html` does not accept this field. |
 | `data_base64` | Required for raw tasks | Base64 content for raw commands. |
-| `copies` | No | Number of copies. Not supported for raw tasks. |
-| `paper` | No | Paper size, for example `{ "width_mm": 60, "height_mm": 40 }`. Not supported for raw tasks. |
+| `html` | Required for `raw-html` | Non-empty inline HTML. `html` does not accept this field. |
+| `wait_ms` | No, HTML tasks only | Wait before rendering, from 0 to 30000 milliseconds. |
+| `copies` | No | Number of copies. Not supported for raw tasks. HTML tasks support this field. |
+| `paper` | No | Paper size, for example `{ "width_mm": 60, "height_mm": 40 }`. Not supported for raw tasks. HTML tasks support this field. |
+
+HTML URL task:
+
+```json
+{
+  "type": "print",
+  "request_id": "REQ-HTML-001",
+  "job_id": "JOB-HTML-001",
+  "format": "html",
+  "file_url": "https://example.com/invoice/1",
+  "wait_ms": 1000,
+  "copies": 1,
+  "paper": { "width_mm": 210, "height_mm": 297 }
+}
+```
+
+Inline HTML task:
+
+```json
+{
+  "type": "print",
+  "request_id": "REQ-RAW-HTML-001",
+  "job_id": "JOB-RAW-HTML-001",
+  "format": "raw-html",
+  "html": "<main><h1>Invoice</h1></main>",
+  "wait_ms": 1000,
+  "copies": 1,
+  "paper": { "width_mm": 210, "height_mm": 297 }
+}
+```
+
+The local Agent renders both HTML task types to PDF. The page and every resource it loads may use only public HTTP/HTTPS addresses; local, private-network, and `file:` resources are rejected.
 
 Raw tasks only submit the bytes decoded from `data_base64` to the system print queue. Paper, copies, barcode, RFID, and other device-language parameters should be written into the raw commands by the business system.
 
