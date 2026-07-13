@@ -22,15 +22,12 @@ test("demo publishes one same-origin sample for every supported format", async (
   }
 });
 
-test("demo pages document npm and Vue usage in both locales", async () => {
+test("demo pages omit the integration tutorial and mount the live component", async () => {
   for (const path of ["docs/demo.md", "docs/zh-CN/demo.md"]) {
     const page = await read(path);
 
-    assert.match(page, /npm install print-bridge-sdk/);
-    assert.match(
-      page,
-      /import \{ PrintBridgeClient \} from ["']print-bridge-sdk["']/,
-    );
+    assert.doesNotMatch(page, /npm install print-bridge-sdk/);
+    assert.doesNotMatch(page, /Install in a Vue project|在 Vue 项目中安装/);
     assert.match(page, /<PrintDemo\s*\/>/);
   }
 });

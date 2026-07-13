@@ -19,30 +19,6 @@ This page connects directly to the PrintBridge Agent running on your computer. I
 The Demo cannot connect if the Agent is stopped, port `17890` is unavailable, or this website Origin is not allowed by the Agent.
 :::
 
-## Install in a Vue project
-
-Install the published SDK from npm:
-
-```bash
-npm install print-bridge-sdk
-```
-
-Create the client inside your Vue application, then connect before querying printers or submitting jobs:
-
-```vue
-<script setup lang="ts">
-import { PrintBridgeClient } from 'print-bridge-sdk'
-
-const client = new PrintBridgeClient({
-  ip: '127.0.0.1',
-  port: 17890
-})
-</script>
-```
-
-The live Demo below uses this Vue integration together with `getPrintersList()`, `getPrinterInfo()`, and `print()`.
-
 <ClientOnly>
   <PrintDemo />
 </ClientOnly>
-
