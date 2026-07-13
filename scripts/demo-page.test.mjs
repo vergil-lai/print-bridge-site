@@ -48,11 +48,27 @@ test("shared demo component covers printers, paper, and all four formats", async
   assert.match(component, /new URL\(/);
 });
 
-test("theme and both locales expose the demo", async () => {
+test("navigation places the localized live demo directly after home", async () => {
   const theme = await read("docs/.vitepress/theme/index.ts");
   const config = await read("docs/.vitepress/config.mts");
 
   assert.match(theme, /PrintDemo/);
-  assert.match(config, /link: ["']\/demo["']/);
-  assert.match(config, /link: ["']\/zh-CN\/demo["']/);
+  assert.match(
+    config,
+    /\{ text: "Home", link: "\/" \},\s*\{ text: "Live Demo", link: "\/demo" \}/,
+  );
+  assert.match(
+    config,
+    /\{ text: "首页", link: "\/zh-CN\/" \},\s*\{ text: "在线示例", link: "\/zh-CN\/demo" \}/,
+  );
+  assert.match(config, /\{ text: "Live Demo", link: "\/demo" \}/);
+  assert.match(config, /\{ text: "在线示例", link: "\/zh-CN\/demo" \}/);
+});
+
+test("home page secondary actions open the localized live demo", async () => {
+  const englishHome = await read("docs/index.md");
+  const chineseHome = await read("docs/zh-CN/index.md");
+
+  assert.match(englishHome, /text: View Live Demo\s+link: \/demo/);
+  assert.match(chineseHome, /text: 查看在线示例\s+link: \/zh-CN\/demo/);
 });

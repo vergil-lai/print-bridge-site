@@ -14,8 +14,8 @@ hero:
           text: 下载 PrintBridge
           link: /zh-CN/download
         - theme: alt
-          text: 查看 SDK 接入
-          link: /zh-CN/guide/sdk
+          text: 查看在线示例
+          link: /zh-CN/demo
 
 features:
     - title: 本机 Agent

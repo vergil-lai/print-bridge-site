@@ -14,8 +14,8 @@ hero:
           text: Download PrintBridge
           link: /download
         - theme: alt
-          text: View SDK Integration
-          link: /guide/sdk
+          text: View Live Demo
+          link: /demo
 
 features:
     - title: Local Agent
