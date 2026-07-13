@@ -1,109 +1,54 @@
 ---
-description: Technical reference for PrintBridge protocols, HTTP and WebSocket APIs, configuration format, CLI commands, status semantics, and platform printing boundaries.
+description: PrintBridge v0.2.0 technical reference for the Desktop/Headless architecture, WebSocket protocol, local IPC, CLI, configuration, and printing boundaries.
 ---
 
-# Technical Docs
+# Technical Reference
 
-This page summarizes the PrintBridge protocol, APIs, configuration format, status semantics, and platform printing boundaries.
+## v0.2.0 Architecture
 
-## Technology Stack
-
-| Layer | Technology |
-| --- | --- |
-| Desktop framework | Tauri 2 |
-| Frontend | Vue 3 + TypeScript |
-| Backend | Rust + Axum + Tokio |
-| Storage | JSON configuration file + SQLite |
-| Windows printing | SumatraPDF |
-| macOS / Linux printing | CUPS `lp` |
-
-## Product Boundaries
-
-PrintBridge is a local print Agent. It is not a printer driver and does not replace the system print queue.
-
-- Browser clients mainly submit jobs through WebSocket `/ws`.
-- The security model consists of an Origin allowlist and an IP allowlist.
-- The print queue executes serially.
-- `submitted` / `success` means the job has been submitted to the system print queue. It does not mean the printer has physically printed the output.
-- Windows uses the bundled SumatraPDF resource.
-- macOS and Linux use the system CUPS command-line tools.
-
-## Supported Formats
-
-- PDF.
-- PNG/JPEG images.
-- Office files: `docx`, `xlsx`, and `pptx`. The local Agent converts them to PDF first.
-- HTML: `html` renders a public HTTP(S) `file_url`; `raw-html` renders caller-provided inline `html`. The local Agent converts both to PDF first.
-- Raw commands: `data_base64` carries device commands such as ESC/POS, TSPL, ZPL, EPL, PCL, and PostScript.
-
-## HTML Rendering
-
-Every platform and runtime mode requires an installed Chromium-family browser for HTML-to-PDF rendering; native WebView fallbacks are not provided:
-
-| Platform | Browser renderer |
-| --- | --- |
-| Windows | Edge → Chrome → Chromium |
-| macOS | Chrome → Chromium |
-| Linux | Chrome → Chromium |
-
-Both the GUI and `print-bridge serve`, including systemd/launchd-managed service deployments, return renderer-unavailable when no supported browser is installed.
-
-The proxy safely blocks a rejected resource without `Referer` or `Origin`, but cannot reliably associate that request with the current HTML page. Task history may therefore omit `BlockedResource`, and the resulting PDF may omit that resource.
-
-Use `html` for an HTML page URL and `raw-html` for inline HTML. `html` requires `file_url` and does not accept inline `html`; `raw-html` requires a non-empty `html` field and does not accept `file_url`. Both accept `wait_ms` from 0 to 30000 milliseconds and support `copies` and `paper`.
-
-```json
-{
-  "type": "print",
-  "job_id": "JOB-HTML-001",
-  "format": "html",
-  "file_url": "https://example.com/invoice/1",
-  "wait_ms": 1000,
-  "copies": 1,
-  "paper": { "width_mm": 210, "height_mm": 297 }
-}
-```
-
-```json
-{
-  "type": "print",
-  "job_id": "JOB-RAW-HTML-001",
-  "format": "raw-html",
-  "html": "<main><h1>Invoice</h1></main>",
-  "wait_ms": 1000,
-  "copies": 1,
-  "paper": { "width_mm": 210, "height_mm": 297 }
-}
-```
-
-The JSSDK only serializes the task; the local Agent renders HTML to PDF and prints it. HTML pages and every loaded resource may access only public HTTP/HTTPS addresses. Local, private-network, and `file:` resources are rejected.
-
-The renderer uses cooperative cancellation at its total deadline: it does not start later browser stages after timeout, while an already-started synchronous browser operation finishes its own bounded wait before cleanup.
-
-## Local Service
-
-Default WebSocket address:
+PrintBridge v0.2.0 uses a Cargo workspace that separates models, functional commands, runtime capabilities, and final products:
 
 ```text
-ws://127.0.0.1:17890/ws
+PrintBridge/
+├── crates/
+│   ├── core/       # Configuration, protocol, task, and queue models
+│   ├── cli/        # CommandService, Clap parser, local IPC client
+│   └── runtime/    # Agent, workers, print adapters, WebSocket, local IPC server
+└── apps/
+    ├── desktop/    # Vue + Tauri Desktop product
+    └── server/     # Linux Headless, systemd, deb/rpm
 ```
 
-Web pages on the same machine usually connect to `127.0.0.1`. If LAN devices need to connect, use the target computer's LAN IP and configure the IP allowlist.
-
-## HTTP API
-
-The HTTP API is mainly used by the desktop settings UI and diagnostics:
+Settings, printers, paper, logs, task history, configuration transfer, connection tests, and test printing are represented as shared commands executed by the same `CommandService`.
 
 ```text
-GET  /health
-GET  /printers
-GET  /printers/{printer_name}/papers
-GET  /config
-POST /config
-GET  /logs
-POST /print/test
-GET  /ws
+Vue settings UI → Tauri IPC ─┐
+                             ├→ CommandService → Agent / local config and data
+print-bridge CLI → local IPC ┘
 ```
+
+The GUI does not use HTTP or spawn the CLI. When the external CLI manages a running Agent, Unix uses `agent.sock` and Windows uses a named pipe. Only commands explicitly allowed offline read local configuration and data directly.
+
+## Two Products
+
+| Product | Package | No-argument behavior | `serve` |
+| --- | --- | --- | --- |
+| Desktop | `print-bridge-desktop` | Starts the GUI | Explicitly rejected |
+| Linux Headless | `print-bridge-server` | Shows CLI help | Starts the Agent |
+
+Both packages ship an executable named `print-bridge` and cannot be installed together. Headless creates the `printbridge` system user and enables a systemd system service during installation.
+
+## Network and IPC Boundary
+
+The Axum router exposes only:
+
+```text
+GET /ws
+```
+
+Configuration, printers, paper, logs, task history, and test printing do not have REST APIs. WebSocket connections are checked against both the client IP allowlist and browser Origin allowlist.
+
+Local IPC is only for CLI-to-Agent management and is not exposed to browsers or the LAN. Desktop stores runtime files under `run/` in the application configuration directory; Linux Headless uses `/run/print-bridge/agent.sock`.
 
 ## WebSocket Messages
 
@@ -118,18 +63,28 @@ Main capabilities include:
 - `job_status`
 - `error`
 
-SDK input uses camelCase and is converted to snake_case before being sent to the local Agent.
+The JSSDK accepts camelCase input and serializes it to snake_case for the local Agent.
+
+## Supported Formats
+
+- PDF.
+- PNG/JPEG images.
+- `docx`, `xlsx`, and `pptx` Office documents, converted to temporary PDF files.
+- `html`, which downloads a public HTTP(S) page and renders it to PDF.
+- `raw-html`, which renders inline HTML supplied by the caller.
+- `raw`, which carries ESC/POS, TSPL, ZPL, EPL, PCL, or PostScript bytes in `data_base64`.
+
+HTML pages and all subresources may only use public HTTP/HTTPS addresses. Local, private-network, and `file:` resources are rejected. Browser discovery is Edge → Chrome → Chromium on Windows and Chrome → Chromium on macOS/Linux.
+
+Windows Office conversion calls Microsoft Word, Excel, or PowerPoint. macOS/Linux use LibreOffice. Conversion is limited to 120 seconds. On Windows, a timeout only cleans up Office processes started by the current task.
 
 ## Configuration Example
 
 ```json
 {
-  "service": {
-    "host": "127.0.0.1",
-    "port": 17890
-  },
+  "service": { "host": "127.0.0.1", "port": 17890 },
   "security": {
-    "allowed_origins": [],
+    "allowed_origins": ["https://erp.example.com"],
     "allowed_ips": ["127.0.0.1"]
   },
   "printing": {
@@ -150,132 +105,89 @@ SDK input uses camelCase and is converted to snake_case before being sent to the
 }
 ```
 
-`service.host` is a compatibility field. Same-machine web pages should still prefer `127.0.0.1`.
-The Origin allowlist restricts web page origins, while the IP allowlist restricts client addresses. `127.0.0.1` is kept by default.
+`service.host` is a compatibility field; the service binds to `0.0.0.0:{port}`. A page on the same machine should still connect to `ws://127.0.0.1:17890/ws`.
 
 ## CLI Operations
 
-PrintBridge provides the `print-bridge` CLI. The CLI runs before the GUI starts and does not require the local Agent service to be running. It directly reads and writes the same `config.json` as the GUI, and reads the local `task_history.sqlite3`.
+Desktop and Headless share the Clap parser in `crates/cli`. Common commands:
 
-The default configuration location is determined by the system, but can be overridden with environment variables:
+```bash
+print-bridge printer
+print-bridge printer "Printer Name"
+print-bridge printer set-default "Printer Name"
+print-bridge paper
+print-bridge paper set 60 40
 
-| Environment variable | Description |
-| --- | --- |
-| `PRINT_BRIDGE_CONFIG_PATH` | Override the `config.json` file path. |
-| `PRINT_BRIDGE_DATA_DIR` | Override the data directory; this also affects the task history database location. |
+print-bridge service
+print-bridge service set-port 17521
+print-bridge origin
+print-bridge origin add "https://example.com"
+print-bridge origin delete "https://example.com"
+print-bridge ip
+print-bridge ip add "192.168.1.0/24"
+print-bridge ip delete "192.168.1.0/24"
 
-### `print-bridge printer`
+print-bridge remote
+print-bridge remote enable
+print-bridge remote disable
+print-bridge remote set-url "https://example.com/print-task"
+print-bridge remote set-token "token"
+print-bridge remote set-device-id "factory-pi-01"
+print-bridge remote set-device-name "packing-station-01"
+print-bridge remote set-interval 10
+print-bridge remote set-max-retries 10
+print-bridge remote generate-device-id
 
-List printers, inspect one printer, or set the default printer.
+print-bridge task
+print-bridge task "JOB-001"
+print-bridge task clear
+print-bridge status
+print-bridge logs
+print-bridge test-remote
+print-bridge test-print
+print-bridge doctor
+print-bridge doctor --json
 
-| Command | Parameters | Description |
-| --- | --- | --- |
-| `print-bridge printer` | None | List printers visible to the system. The default printer is marked with `*`. |
-| `print-bridge printer "Printer Name"` | `printer_name` | Show printer details, including default status, DPI, port, and local/network/virtual printer flags. |
-| `print-bridge printer set-default "Printer Name"` | `printer_name` | Validate that the printer exists, then write `printing.default_printer`. |
+print-bridge config export ./printbridge-config.json --only service-port --only allowed-ips
+print-bridge config import ./printbridge-config.json --preview
+print-bridge config validate
 
-### `print-bridge paper`
+# Desktop only
+print-bridge autostart enable
+print-bridge app language en-US
 
-View or set the default paper size.
-
-| Command | Parameters | Description |
-| --- | --- | --- |
-| `print-bridge paper` | None | Show the current default printer and default paper. If a default printer is configured, it also lists available paper sizes for that printer. |
-| `print-bridge paper set 60 40` | `width`, `height` | Set the default paper size in millimeters and write `printing.default_paper`. |
-
-### `print-bridge origin`
-
-Manage the browser Origin allowlist. The Origin allowlist restricts which web pages can connect to the local WebSocket service.
-
-| Command | Parameters | Description |
-| --- | --- | --- |
-| `print-bridge origin` | None | List currently allowed Origins. |
-| `print-bridge origin add "https://erp.example.com"` | `origin` | Validate and add an Origin to the allowlist. |
-| `print-bridge origin delete "https://erp.example.com"` | `origin` | Remove an Origin from the allowlist. If it does not exist, the command reports that it was not found. |
-
-### `print-bridge remote`
-
-View or modify remote task configuration.
-
-| Command | Parameters | Description |
-| --- | --- | --- |
-| `print-bridge remote` | None | Show the remote task switch, URL, whether the token is set, device ID, device name, and polling interval. |
-| `print-bridge remote enable` | None | Enable remote task polling by writing `remote.enabled = true`. |
-| `print-bridge remote disable` | None | Disable remote task polling by writing `remote.enabled = false`. |
-| `print-bridge remote set-url "https://example.com/print-task"` | `url` | Set the remote task URL. The URL must use `http` or `https`. Pass an empty string to clear it. |
-| `print-bridge remote set-token "token"` | `token` | Set the Bearer Token. Pass an empty string to clear it. |
-| `print-bridge remote set-device-id "factory-pi-01"` | `device_id` | Set the device ID. Pass an empty string to clear it. |
-| `print-bridge remote set-device-name "packing-station-01"` | `device_name` | Set the device name. Pass an empty string to clear it. |
-| `print-bridge remote set-interval 10` | `seconds` | Set the polling interval in seconds. Must be a positive integer. |
-
-### `print-bridge task`
-
-View or clear local task history.
-
-| Command | Parameters | Description |
-| --- | --- | --- |
-| `print-bridge task` | None | Show the latest 50 task summaries, including updated time, task ID, current status, and message. |
-| `print-bridge task "JOB-001"` | `job_id` | Show the status event timeline for a specific task. |
-| `print-bridge task clear` | None | Clear local task history. |
-
-### `print-bridge serve`
-
-Run the local Agent without the Tauri GUI.
-
-| Command | Platform | Description |
-| --- | --- | --- |
-| `print-bridge serve` | Windows, macOS, Linux | Start the local HTTP/WebSocket service, print queue worker, and remote polling worker in the foreground. |
-| `print-bridge serve install` | Linux, macOS | Install the foreground serve command as a systemd user service or launchd LaunchAgent. |
-| `print-bridge serve uninstall` | Linux, macOS | Stop and remove the managed systemd user service or launchd LaunchAgent. |
-
-On Linux, `serve install` writes `~/.config/systemd/user/print-bridge.service`, reloads the user systemd daemon, and enables the service immediately.
-
-On macOS, `serve install` writes `~/Library/LaunchAgents/com.printbridge.agent.plist`, then loads and starts it with `launchctl`.
-
-Windows does not provide `serve install` or `serve uninstall`. Use the GUI tray app for regular Windows desktop deployments, or host `print-bridge serve` with an external Windows Service wrapper only after confirming that the service account can see the target printer.
-
-> **Note:** the GUI and `print-bridge serve` are currently mutually exclusive. If a PrintBridge Agent is already using the configured local port, the second entrypoint exits immediately and does not start another HTTP/WebSocket service, print queue worker, or remote polling worker.
-
-## Configuration Import/Export Format
-
-The exported configuration file is a plain JSON wrapper. The internal payload is encrypted:
-
-```json
-{
-  "format": "printbridge-config-encrypted",
-  "version": 1,
-  "crypto": {
-    "kdf": "argon2id13",
-    "cipher": "aes-256-gcm"
-  },
-  "payload": "<base64(ciphertext || tag)>"
-}
+# Linux Headless only
+print-bridge serve
 ```
 
-During import, only configuration items included in the file are overwritten. Configuration not included in the file keeps its existing value.
+Online commands such as `status`, in-memory logs, connection tests, and test printing require a running Agent. `doctor` only checks local configuration, directory permissions, IPC, ports, printers, browsers, Office/LibreOffice, remote configuration, and the Headless systemd environment. It does not connect to the remote task server, submit print jobs, or modify configuration.
+
+Stable exit codes are 2 for invalid arguments, 3 when the Agent is not running, 4 for permission errors, and 5 for conflicts. `doctor` returns 1 when it finds a FAIL and still returns 0 for WARN-only results.
+
+## Linux Headless
+
+`print-bridge serve` only exists in `print-bridge-server`. Installing a deb/rpm creates the system user and enables `print-bridge.service`. There are no `serve install/uninstall` commands.
+
+| Purpose | Path |
+| --- | --- |
+| Configuration | `/etc/print-bridge` |
+| Data | `/var/lib/print-bridge` |
+| Runtime / IPC | `/run/print-bridge` |
+
+The service uses `Type=notify`. Diagnose it with `systemctl status print-bridge`, `journalctl -u print-bridge`, or `print-bridge status`.
 
 ## Status Semantics
 
-```text
-queued
-downloading
-printing
-submitted
-completed
-failed
-unknown
-cancelled
-```
+WebSocket task states include `queued`, `downloading`, `printing`, `submitted`, `completed`, `failed`, `unknown`, and `cancelled`.
 
-- `queued`: The local Agent has accepted the job and placed it in the queue.
-- `submitted`: The job has been submitted to the system print queue.
-- `success`: Remote task reporting semantics. It means the job has been submitted to the system print queue, not that physical output is confirmed.  
-  WebSocket status semantics follow this list.
-- `completed`: The system or driver layer observed the job ending. This is not the same as physical output confirmation.
-- `failed`: The Agent failed during download, conversion, validation, or system print command execution.
-- `unknown`: The platform cannot track the job, tracking timed out, or later status cannot be determined reliably.
+- `queued`: the Agent accepted and queued the task.
+- `submitted`: the task reached the system print queue; it does not confirm physical output.
+- `success`: remote reporting semantics for the same system-queue submission point.
+- `completed`: the OS or driver observed completion; it still does not prove physical output.
+- `failed`: download, conversion, validation, or system print command failure.
+- `unknown`: tracking is unavailable, timed out, or cannot reliably determine a later state.
 
-## More Source Documentation
+## Source Documentation
 
 - [PrintBridge GitHub](https://github.com/vergil-lai/print-bridge)
 - [print-bridge-sdk GitHub](https://github.com/vergil-lai/print-bridge-jssdk)

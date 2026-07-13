@@ -37,7 +37,7 @@ Printer driver and printer
 
 ## 1. Download and Start PrintBridge
 
-Download the installer for your system from [GitHub Releases](https://github.com/vergil-lai/print-bridge/releases).
+Choose the Desktop installer for your system on the [Download page](../download.md). For a Linux host without a desktop environment, choose a Headless deb/rpm package and follow [Deployment and configuration](./deployment.md) for CLI and systemd setup.
 
 After the first launch, PrintBridge stays on the user's computer and starts the local service:
 
@@ -46,6 +46,13 @@ ws://127.0.0.1:17890/ws
 ```
 
 Web pages on the same machine usually connect to `127.0.0.1`. If another device on the LAN needs to connect to this computer's Agent, use this computer's LAN IP and configure the IP allowlist.
+
+Use the CLI to check the Agent and its runtime dependencies:
+
+```bash
+print-bridge status
+print-bridge doctor
+```
 
 ## 2. Select the Default Printer and Paper
 

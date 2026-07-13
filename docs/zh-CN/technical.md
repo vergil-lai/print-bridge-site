@@ -1,108 +1,54 @@
 ---
-description: PrintBridge 技术文档，汇总协议、HTTP API、WebSocket API、配置格式、CLI 命令、状态语义和平台打印边界。
+description: PrintBridge v0.2.0 技术文档，说明 Desktop/Headless 架构、WebSocket 协议、本地 IPC、CLI、配置和打印边界。
 ---
 
 # 技术文档
 
-这一页汇总 PrintBridge 的协议、API、配置格式、状态语义和平台打印边界。
+## v0.2.0 架构
 
-## 技术栈
-
-| 层级 | 技术 |
-| --- | --- |
-| 桌面框架 | Tauri 2 |
-| 前端 | Vue 3 + TypeScript |
-| 后端 | Rust + Axum + Tokio |
-| 存储 | JSON 配置文件 + SQLite |
-| Windows 打印 | SumatraPDF |
-| macOS / Linux 打印 | CUPS `lp` |
-
-## 产品边界
-
-PrintBridge 是本机打印 Agent，不是打印机驱动，也不替代系统打印队列。
-
-- 浏览器侧主要通过 WebSocket `/ws` 下发任务。
-- 安全模型由 Origin 白名单和 IP 白名单组成。
-- 打印队列串行执行。
-- `submitted` / `success` 表示已提交到系统打印队列，不表示打印机已经真实出纸。
-- Windows 使用随包资源中的 SumatraPDF。
-- macOS 和 Linux 使用系统 CUPS 命令行工具。
-
-## 支持格式
-
-- PDF。
-- PNG/JPEG 图片。
-- Office 文件：`docx`、`xlsx`、`pptx`，本机 Agent 会先转换为 PDF。
-- HTML：`html` 渲染公开 HTTP(S) `file_url`，`raw-html` 渲染调用方提供的内联 `html`；两者都会先由本机 Agent 转换为 PDF。
-- raw 指令：使用 `data_base64` 承载 ESC/POS、TSPL、ZPL、EPL、PCL、PostScript 等设备指令。
-
-## HTML 渲染
-
-所有平台和运行模式都必须使用已安装的 Chromium 系浏览器进行 HTML 到 PDF 渲染；不提供原生 WebView fallback：
-
-| 平台 | 浏览器渲染器 |
-| --- | --- |
-| Windows | Edge → Chrome → Chromium |
-| macOS | Chrome → Chromium |
-| Linux | Chrome → Chromium |
-
-GUI 和 `print-bridge serve`（包括 systemd/launchd 托管服务）在未安装支持的浏览器时都会返回 renderer-unavailable。
-
-代理会安全拦截没有 `Referer` 或 `Origin` 的被拒资源；但这类请求无法可靠关联到当前 HTML 页面，任务历史未必记录 `BlockedResource`，生成的 PDF 也可能缺少该资源。
-
-`html` 用于 HTML 页面 URL，`raw-html` 用于内联 HTML。`html` 必须提供 `file_url`，不接受内联 `html`；`raw-html` 必须提供非空 `html`，不接受 `file_url`。两种任务的 `wait_ms` 都可为 0 到 30000 毫秒，且支持 `copies` 和 `paper`。
-
-```json
-{
-  "type": "print",
-  "job_id": "JOB-HTML-001",
-  "format": "html",
-  "file_url": "https://example.com/invoice/1",
-  "wait_ms": 1000,
-  "copies": 1,
-  "paper": { "width_mm": 210, "height_mm": 297 }
-}
-```
-
-```json
-{
-  "type": "print",
-  "job_id": "JOB-RAW-HTML-001",
-  "format": "raw-html",
-  "html": "<main><h1>Invoice</h1></main>",
-  "wait_ms": 1000,
-  "copies": 1,
-  "paper": { "width_mm": 210, "height_mm": 297 }
-}
-```
-
-JSSDK 只序列化任务；本机 Agent 负责将 HTML 渲染为 PDF 并打印。HTML 页面及其加载的所有资源只允许访问公开 HTTP/HTTPS 地址；本机、私网和 `file:` 资源会被拒绝。
-
-渲染器在总 deadline 上使用协作式取消：超时后不再开始后续浏览器阶段；已经开始的同步浏览器调用会在自身有界等待结束后再清理资源。
-## 本地服务
-
-默认 WebSocket 地址：
+PrintBridge v0.2.0 采用 Cargo workspace，将模型、功能命令、运行时和最终产品分开：
 
 ```text
-ws://127.0.0.1:17890/ws
+PrintBridge/
+├── crates/
+│   ├── core/       # 配置、协议、任务和队列模型
+│   ├── cli/        # CommandService、Clap parser、本地 IPC client
+│   └── runtime/    # Agent、worker、打印适配器、WebSocket、本地 IPC server
+└── apps/
+    ├── desktop/    # Vue + Tauri Desktop 产品
+    └── server/     # Linux Headless、systemd、deb/rpm
 ```
 
-同机 Web 页面通常连接 `127.0.0.1`。局域网设备需要连接时，应使用目标电脑的局域网 IP，并配置 IP 白名单。
-
-## HTTP API
-
-HTTP API 主要供桌面设置界面和诊断使用：
+设置、打印机、纸张、日志、任务历史、配置导入导出、连接测试和测试打印都表示为统一命令，并由同一个 `CommandService` 执行。
 
 ```text
-GET  /health
-GET  /printers
-GET  /printers/{printer_name}/papers
-GET  /config
-POST /config
-GET  /logs
-POST /print/test
-GET  /ws
+Vue 设置界面 → Tauri IPC ─┐
+                          ├→ CommandService → Agent / 本机配置与数据
+print-bridge CLI → 本地 IPC ┘
 ```
+
+GUI 不经过 HTTP，也不会启动 CLI 子进程。外部 CLI 管理运行中 Agent 时，Unix 使用 `agent.sock`，Windows 使用命名管道；只有明确允许离线执行的命令才会直接读取本机配置和数据。
+
+## 两个产品
+
+| 产品 | 包 | 无参数行为 | `serve` |
+| --- | --- | --- | --- |
+| Desktop | `print-bridge-desktop` | 启动 GUI | 明确拒绝 |
+| Linux Headless | `print-bridge-server` | 显示 CLI 帮助 | 启动 Agent |
+
+两种软件包都交付名为 `print-bridge` 的可执行文件，并且不能同时安装。Headless 安装时创建 `printbridge` 系统用户并自动启用 systemd system service。
+
+## 网络与 IPC 边界
+
+Axum 对外只暴露：
+
+```text
+GET /ws
+```
+
+配置、打印机、纸张、日志、任务历史和测试打印均不提供 REST API。WebSocket 连接同时受客户端 IP 白名单和浏览器 Origin 白名单限制。
+
+本地 IPC 只用于 CLI 管理 Agent，不对浏览器或局域网开放。Desktop 默认把 runtime 文件放在应用配置目录的 `run/`；Linux Headless 使用 `/run/print-bridge/agent.sock`。
 
 ## WebSocket 消息
 
@@ -117,18 +63,28 @@ GET  /ws
 - `job_status`
 - `error`
 
-SDK 输入使用 camelCase，发送给本机 Agent 时会转换为 snake_case。
+JSSDK 输入使用 camelCase，发送给本机 Agent 时转换为 snake_case。
+
+## 支持格式
+
+- PDF。
+- PNG/JPEG 图片。
+- `docx`、`xlsx`、`pptx` Office 文件；转换为临时 PDF 后打印。
+- `html`：下载公开 HTTP(S) 页面并渲染为 PDF。
+- `raw-html`：渲染调用方提供的内联 HTML。
+- `raw`：使用 `data_base64` 承载 ESC/POS、TSPL、ZPL、EPL、PCL、PostScript 等设备指令。
+
+HTML 页面和所有子资源只允许使用公开 HTTP/HTTPS 地址；本机、私网和 `file:` 资源会被拒绝。HTML 渲染依赖系统浏览器：Windows 按 Edge → Chrome → Chromium 查找，macOS/Linux 按 Chrome → Chromium 查找。
+
+Windows Office 转换分别调用 Microsoft Word、Excel、PowerPoint；macOS/Linux 使用 LibreOffice。单次转换最长 120 秒。Windows 转换超时时只清理当前任务启动的 Office 实例。
 
 ## 配置示例
 
 ```json
 {
-  "service": {
-    "host": "127.0.0.1",
-    "port": 17890
-  },
+  "service": { "host": "127.0.0.1", "port": 17890 },
   "security": {
-    "allowed_origins": [],
+    "allowed_origins": ["https://erp.example.com"],
     "allowed_ips": ["127.0.0.1"]
   },
   "printing": {
@@ -149,130 +105,87 @@ SDK 输入使用 camelCase，发送给本机 Agent 时会转换为 snake_case。
 }
 ```
 
-`service.host` 是兼容字段；同机页面仍应优先连接 `127.0.0.1`。
-Origin 白名单约束网页来源，IP 白名单约束客户端地址，默认保留 `127.0.0.1`。
+`service.host` 是兼容字段；服务实际绑定 `0.0.0.0:{port}`。同机网页仍应连接 `ws://127.0.0.1:17890/ws`。
 
-## CLI 运维
+## CLI 运维入口
 
-PrintBridge 提供 `print-bridge` CLI。CLI 在 GUI 启动前执行，不要求本地 Agent 服务已经运行；它直接读写与 GUI 相同的 `config.json`，并读取本地 `task_history.sqlite3`。
+Desktop 和 Headless 共用 `crates/cli` 中的 Clap parser。常用命令：
 
-CLI 默认配置位置由系统决定，也可以用环境变量覆盖：
+```bash
+print-bridge printer
+print-bridge printer "Printer Name"
+print-bridge printer set-default "Printer Name"
+print-bridge paper
+print-bridge paper set 60 40
 
-| 环境变量 | 说明 |
-| --- | --- |
-| `PRINT_BRIDGE_CONFIG_PATH` | 覆盖 `config.json` 文件路径。 |
-| `PRINT_BRIDGE_DATA_DIR` | 覆盖数据目录；同时影响任务历史数据库位置。 |
+print-bridge service
+print-bridge service set-port 17521
+print-bridge origin
+print-bridge origin add "https://example.com"
+print-bridge origin delete "https://example.com"
+print-bridge ip
+print-bridge ip add "192.168.1.0/24"
+print-bridge ip delete "192.168.1.0/24"
 
-### `print-bridge printer`
+print-bridge remote
+print-bridge remote enable
+print-bridge remote disable
+print-bridge remote set-url "https://example.com/print-task"
+print-bridge remote set-token "token"
+print-bridge remote set-device-id "factory-pi-01"
+print-bridge remote set-device-name "packing-station-01"
+print-bridge remote set-interval 10
+print-bridge remote set-max-retries 10
+print-bridge remote generate-device-id
 
-查看打印机列表、查看单个打印机信息，或设置默认打印机。
+print-bridge task
+print-bridge task "JOB-001"
+print-bridge task clear
+print-bridge status
+print-bridge logs
+print-bridge test-remote
+print-bridge test-print
+print-bridge doctor
+print-bridge doctor --json
 
-| 命令 | 参数 | 说明 |
-| --- | --- | --- |
-| `print-bridge printer` | 无 | 列出系统可见的打印机。默认打印机会用 `*` 标记。 |
-| `print-bridge printer "Printer Name"` | `printer_name` | 查看指定打印机详情，包括是否默认、DPI、端口、本地/网络/虚拟打印机标记。 |
-| `print-bridge printer set-default "Printer Name"` | `printer_name` | 校验打印机存在后，写入 `printing.default_printer`。 |
+print-bridge config export ./printbridge-config.json --only service-port --only allowed-ips
+print-bridge config import ./printbridge-config.json --preview
+print-bridge config validate
 
-### `print-bridge paper`
+# 仅 Desktop
+print-bridge autostart enable
+print-bridge app language zh-CN
 
-查看或设置默认纸张尺寸。
-
-| 命令 | 参数 | 说明 |
-| --- | --- | --- |
-| `print-bridge paper` | 无 | 显示当前默认打印机、默认纸张；如果已配置默认打印机，也会列出该打印机可用纸张。 |
-| `print-bridge paper set 60 40` | `width`、`height` | 设置默认纸张尺寸，单位为毫米，写入 `printing.default_paper`。 |
-
-### `print-bridge origin`
-
-管理浏览器 Origin 白名单。Origin 白名单用于约束哪些 Web 页面可以连接本机 WebSocket 服务。
-
-| 命令 | 参数 | 说明 |
-| --- | --- | --- |
-| `print-bridge origin` | 无 | 列出当前允许的 Origin。 |
-| `print-bridge origin add "https://erp.example.com"` | `origin` | 校验并加入 Origin 白名单。 |
-| `print-bridge origin delete "https://erp.example.com"` | `origin` | 从 Origin 白名单中删除。不存在时会提示未找到。 |
-
-### `print-bridge remote`
-
-查看或修改远程任务配置。
-
-| 命令 | 参数 | 说明 |
-| --- | --- | --- |
-| `print-bridge remote` | 无 | 显示远程任务开关、URL、Token 是否已设置、设备 ID、设备名称和轮询间隔。 |
-| `print-bridge remote enable` | 无 | 开启远程任务轮询，写入 `remote.enabled = true`。 |
-| `print-bridge remote disable` | 无 | 关闭远程任务轮询，写入 `remote.enabled = false`。 |
-| `print-bridge remote set-url "https://example.com/print-task"` | `url` | 设置远程任务 URL。URL 必须使用 `http` 或 `https`。传空字符串可清空。 |
-| `print-bridge remote set-token "token"` | `token` | 设置 Bearer Token。传空字符串可清空。 |
-| `print-bridge remote set-device-id "factory-pi-01"` | `device_id` | 设置设备 ID。传空字符串可清空。 |
-| `print-bridge remote set-device-name "packing-station-01"` | `device_name` | 设置设备名称。传空字符串可清空。 |
-| `print-bridge remote set-interval 10` | `seconds` | 设置轮询间隔秒数。必须是正整数。 |
-
-### `print-bridge task`
-
-查看或清空本地任务历史。
-
-| 命令 | 参数 | 说明 |
-| --- | --- | --- |
-| `print-bridge task` | 无 | 显示最近 50 条任务摘要，包括更新时间、任务 ID、当前状态和消息。 |
-| `print-bridge task "JOB-001"` | `job_id` | 查看指定任务的状态事件时间线。 |
-| `print-bridge task clear` | 无 | 清空本地任务历史。 |
-
-### `print-bridge serve`
-
-在不打开 Tauri GUI 的情况下运行本机 Agent。
-
-| 命令 | 平台 | 说明 |
-| --- | --- | --- |
-| `print-bridge serve` | Windows、macOS、Linux | 前台启动本地 HTTP/WebSocket 服务、打印队列 worker 和远程轮询 worker。 |
-| `print-bridge serve install` | Linux、macOS | 把前台 serve 命令安装为 systemd user service 或 launchd LaunchAgent。 |
-| `print-bridge serve uninstall` | Linux、macOS | 停止并删除托管的 systemd user service 或 launchd LaunchAgent。 |
-
-Linux 下，`serve install` 会写入 `~/.config/systemd/user/print-bridge.service`，刷新 user systemd，并立即启用服务。
-
-macOS 下，`serve install` 会写入 `~/Library/LaunchAgents/com.printbridge.agent.plist`，再通过 `launchctl` 加载并启动。
-
-Windows 不提供 `serve install` 和 `serve uninstall`。普通 Windows 桌面部署建议继续使用 GUI 托盘常驻；如果确实需要 Windows Service，需要通过外部 wrapper 托管 `print-bridge serve`，并先确认服务账号能看到目标打印机。
-
-> **注意：** GUI 和 `print-bridge serve` 当前互斥运行。如果已经有 PrintBridge Agent 占用当前本地端口，第二个入口会直接退出，不会再启动另一套 HTTP/WebSocket 服务、打印队列 worker 或远程轮询 worker。
-
-## 配置导入导出格式
-
-配置导出文件是普通 JSON 外壳，内部 payload 使用加密内容保存：
-
-```json
-{
-  "format": "printbridge-config-encrypted",
-  "version": 1,
-  "crypto": {
-    "kdf": "argon2id13",
-    "cipher": "aes-256-gcm"
-  },
-  "payload": "<base64(ciphertext || tag)>"
-}
+# 仅 Linux Headless
+print-bridge serve
 ```
 
-导入时只覆盖文件中包含的配置项；文件中没有包含的配置会保留现有值。
+`status`、内存日志、连接测试和测试打印等在线命令要求 Agent 正在运行。`doctor` 只检查本机配置、目录权限、IPC、端口、打印机、浏览器、Office/LibreOffice、远程配置和 Headless systemd 环境，不会连接远程服务器、提交打印或修改配置。
+
+稳定退出码：参数错误 2、Agent 未运行 3、权限错误 4、冲突 5；`doctor` 有 FAIL 时返回 1，只有 WARN 时仍返回 0。
+
+## Linux Headless
+
+`print-bridge serve` 只存在于 `print-bridge-server`。deb/rpm 安装时创建系统用户并启用 `print-bridge.service`，没有 `serve install/uninstall`。
+
+| 用途 | 路径 |
+| --- | --- |
+| 配置 | `/etc/print-bridge` |
+| 数据 | `/var/lib/print-bridge` |
+| Runtime / IPC | `/run/print-bridge` |
+
+服务使用 `Type=notify`。可使用 `systemctl status print-bridge`、`journalctl -u print-bridge` 或 `print-bridge status` 排障。
 
 ## 状态语义
 
-```text
-queued
-downloading
-printing
-submitted
-completed
-failed
-unknown
-cancelled
-```
+WebSocket 任务状态包括 `queued`、`downloading`、`printing`、`submitted`、`completed`、`failed`、`unknown`、`cancelled`。
 
-- `queued`：本机 Agent 已接收任务并放入队列。
-- `submitted`：任务已提交到系统打印队列。
-- `success`：远程任务上报语义，表示任务已提交到系统打印队列，不代表物理出纸确认。  
-  WebSocket 状态语义以本列表为准。
-- `completed`：系统或驱动层面观察到任务结束，不等同于物理出纸确认。
-- `failed`：Agent 下载、转换、校验或系统打印命令失败。
-- `unknown`：平台不可追踪、追踪超时，或无法可靠判断后续状态。
+- `queued`：Agent 已接收任务并放入队列。
+- `submitted`：已提交到系统打印队列，不代表物理出纸。
+- `success`：远程任务上报语义，同样表示已提交到系统打印队列。
+- `completed`：系统或驱动层观察到任务结束，不等同于物理出纸确认。
+- `failed`：下载、转换、校验或系统打印命令失败。
+- `unknown`：平台不可追踪、追踪超时或无法可靠判断后续状态。
 
 ## 更多源码文档
 

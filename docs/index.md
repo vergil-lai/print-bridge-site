@@ -24,8 +24,8 @@ features:
       details: Web pages connect to the local WebSocket service through print-bridge-sdk and submit single or batch print jobs.
     - title: Multiple Print Formats
       details: Supports PDF, PNG/JPEG images, Office files, and raw commands such as ESC/POS, TSPL, ZPL, EPL, and PCL.
-    - title: Enterprise Deployment
-      details: Origin/IP allowlists, remote task polling, CLI operations, and encrypted configuration import/export make it suitable for warehouses, stores, and workstations.
+    - title: Desktop and Headless
+      details: Ships Windows, macOS, and Linux Desktop products plus a systemd-managed Linux Headless product. Both use the same CLI but cannot be installed together.
     - title: Remote Print Tasks
       details: Your business server creates tasks centrally. The local Agent polls, downloads, queues, prints, and reports accepted, success, or failed status back to the server.
     - title: Open Source and Private Deployment

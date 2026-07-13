@@ -1,96 +1,100 @@
 ---
-description: Deploy PrintBridge in warehouses, stores, and workstations with printer defaults, allowlists, remote task polling, CLI operations, and encrypted configuration import/export.
+description: Deploy PrintBridge Desktop or Linux Headless with the CLI, systemd, allowlists, and remote task polling.
 ---
 
 # Deployment and Configuration
 
-PrintBridge is designed for stable silent printing in warehouses, stores, production stations, and similar environments. One computer runs the Agent persistently. Business systems can connect directly through the SDK, or the Agent can actively pull remote tasks.
+PrintBridge is designed for stable silent printing in warehouses, stores, and production stations. A business system can connect to the local WebSocket through the JSSDK, or the Agent can poll a remote task service.
+
+## Choose a Product
+
+v0.2.0 ships two mutually exclusive products:
+
+| Product | Platform | Runtime model |
+| --- | --- | --- |
+| Desktop | Windows, macOS, Linux | Settings UI, tray app, and desktop autostart |
+| Linux Headless | x86_64 and ARM64 Linux | No GUI; managed as a systemd system service |
+
+Both install a CLI named `print-bridge`, but they cannot be installed on the same machine. Desktop does not provide `serve`; only Linux Headless provides `print-bridge serve`.
 
 ## Basic Configuration
 
-Each computer running PrintBridge should confirm at least:
+Confirm at least the following on every machine:
 
-1. Default printer.
-2. Default paper.
-3. Business system Origin allowlist.
-4. IP allowlist.
-5. Remote task polling configuration, if remote task mode is used.
-
-## Configuration Import and Export
-
-The settings UI can export part of the configuration as an encrypted JSON file, and it can also import configuration from an encrypted JSON file. Enterprises can use this to reduce per-device manual setup.
-
-Configuration suitable for migration includes:
-
-- Local port.
-- Origin allowlist.
-- Remote task switch.
-- Remote task URL.
-- Remote task Authorization Token.
-- Polling interval.
-- Report retry count.
-
-The default exported filename is:
-
-```text
-printbridge-config.json
-```
-
-During import, PrintBridge shows a preview first. After confirmation, it only overwrites configuration items included in the file. Configuration not included in the file keeps its existing value.
+1. Default printer and paper.
+2. Business system Origin allowlist.
+3. Client IP allowlist.
+4. Remote task settings, if remote mode is enabled.
+5. Platform dependencies such as CUPS, a supported browser, and Office conversion software.
 
 ## CLI Operations
 
-PrintBridge provides the `print-bridge` CLI for basic operations and diagnostics without opening the GUI:
+Desktop and Headless share the same functional commands:
 
 ```bash
 print-bridge printer
 print-bridge printer set-default "Printer Name"
-
 print-bridge paper
 print-bridge paper set 60 40
 
 print-bridge origin add "https://erp.example.com"
+print-bridge ip add "192.168.1.0/24"
 
 print-bridge remote set-url "https://example.com/print-task"
 print-bridge remote enable
 
 print-bridge task
-print-bridge serve
-print-bridge serve install
-print-bridge serve uninstall
+print-bridge status
+print-bridge doctor
+print-bridge config validate
 ```
 
-The CLI reads and writes the same local configuration as the GUI. It is suitable for bulk deployment, remote support, and environments without a GUI.
+The CLI and GUI use the same `CommandService`. When the Agent is running, the CLI prefers local IPC. Commands that allow offline execution can read local configuration and data directly. Desktop additionally supports `autostart` and `app language`.
 
-## Headless Serve
+## Linux Headless
 
-`print-bridge serve` starts the local Agent without the desktop GUI. It runs in the foreground, starts the HTTP/WebSocket service, the print queue worker, and the remote polling worker, then writes logs to the terminal.
+Installing a `print-bridge-server` deb/rpm from the [Download page](../download.md):
 
-Use it when a workstation or small host should run PrintBridge without opening the Tauri window. The host operating system still needs to see the target printer through its normal printing stack.
+- Creates the `printbridge` system user.
+- Installs and enables `print-bridge.service`.
+- Lets systemd run `print-bridge serve` automatically.
 
-On Linux and macOS, PrintBridge can install this foreground command as a managed user service:
+A normal installation does not require running `serve` manually, and there are no `serve install` or `serve uninstall` commands.
+
+Common diagnostic commands:
 
 ```bash
-print-bridge serve install
+systemctl status print-bridge
+journalctl -u print-bridge
+print-bridge status
+print-bridge doctor
 ```
 
-- Linux installs a systemd user service at `~/.config/systemd/user/print-bridge.service`.
-- macOS installs a launchd LaunchAgent at `~/Library/LaunchAgents/com.printbridge.agent.plist`.
-- The generated service points at the current `print-bridge` executable and uses the same CLI config/data paths.
+Headless uses these system paths:
 
-Remove the managed service with:
+| Purpose | Path |
+| --- | --- |
+| Configuration | `/etc/print-bridge` |
+| Data | `/var/lib/print-bridge` |
+| Runtime / IPC | `/run/print-bridge` |
+
+Upgrades preserve configuration and data. Only package purge removes `/etc/print-bridge` and `/var/lib/print-bridge`.
+
+## Configuration Import and Export
+
+The Desktop settings UI and CLI support encrypted configuration import and export. Import shows a preview and only overwrites fields included in the file:
 
 ```bash
-print-bridge serve uninstall
+print-bridge config export ./printbridge-config.json --only service-port --only allowed-ips
+print-bridge config import ./printbridge-config.json --preview
+print-bridge config validate
 ```
 
-Windows does not provide `serve install` or `serve uninstall`. For regular Windows desktops, keep using the GUI tray app. If unattended Windows service hosting is required, use a wrapper such as WinSW or NSSM and validate that the service account can see the target printer.
+For fleet deployment, configure a template machine first, then export and distribute only the fields that should be shared.
 
-> **Note:** the GUI and `print-bridge serve` are currently mutually exclusive. If one PrintBridge Agent is already using the configured local port, the second entrypoint exits instead of starting another server or queue worker.
+## HTML and Office Prerequisites
 
-## HTML Rendering Prerequisites
-
-Every platform and runtime mode requires an installed Chromium-family browser for HTML-to-PDF rendering; native WebView fallbacks are not provided:
+HTML printing requires an installed Chromium-family browser:
 
 | Platform | Browser renderer |
 | --- | --- |
@@ -98,16 +102,18 @@ Every platform and runtime mode requires an installed Chromium-family browser fo
 | macOS | Chrome → Chromium |
 | Linux | Chrome → Chromium |
 
-Both the GUI and `print-bridge serve`, including a systemd or launchd managed deployment, require a supported browser. Without one, an HTML task returns renderer-unavailable. Install a supported browser on any headless host that must process HTML tasks.
+Without a supported browser, HTML tasks return renderer-unavailable. Headless hosts must also install Chrome or Chromium.
+
+PrintBridge does not bundle an Office converter. Windows requires the corresponding Microsoft Office application; macOS and Linux require LibreOffice. Linux printing also requires CUPS to be installed and enabled.
 
 ## Remote Task Polling
 
-Remote task polling fits the pattern where a business server creates tasks centrally and workstation Agents print automatically.
+Remote tasks fit the model where a business server creates jobs centrally and workstation Agents print automatically:
 
 ```text
 Business server
   |
-  | Agent periodically pulls pending print tasks
+  | Agent polls and reports status over HTTP(S)
   v
 PrintBridge Agent
   |
@@ -116,13 +122,12 @@ PrintBridge Agent
 System print queue
 ```
 
-This mode is suitable for warehouse labels, store receipts, production-station labels, picking lists, and similar workflows.
+This HTTP(S) traffic is outbound from the Agent to the business server. The only network endpoint exposed by PrintBridge is WebSocket `/ws`.
 
-## Bulk Deployment Suggestions
+## Fleet Deployment Suggestions
 
-- Configure the default printer, paper, allowlists, and remote tasks on one template machine.
-- Export the encrypted configuration package.
-- Import the configuration package on other workstations.
-- Use the CLI to check printers, paper, and the remote task switch.
-- Use `print-bridge serve install` on Linux/macOS headless hosts when the Agent should start as a managed user service.
-- Control device IDs, user permissions, and task sources in the business system.
+- Configure printers, paper, allowlists, and remote tasks on a template machine.
+- Migrate reusable fields with an encrypted configuration file.
+- Run `print-bridge doctor` to check directory permissions, IPC, printers, browsers, and Office dependencies.
+- Install a Headless deb/rpm on Linux hosts without a GUI; the package manages systemd automatically.
+- Manage device IDs, user permissions, and task sources in the business system.

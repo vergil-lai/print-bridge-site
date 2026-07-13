@@ -4,6 +4,7 @@
     "node": ">=20"
   },
   "scripts": {
+    "test": "node --test scripts/*.test.mjs",
     "docs:sync-release": "node scripts/sync-latest-release.mjs",
     "docs:dev": "pnpm docs:sync-release && vitepress dev docs",
     "docs:build": "pnpm docs:sync-release && vitepress build docs",

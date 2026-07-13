@@ -37,7 +37,7 @@ PrintBridge
 
 ## 1. 下载并启动 PrintBridge
 
-在 [GitHub Releases](https://github.com/vergil-lai/print-bridge/releases) 下载适合当前系统的安装包。
+在[下载页面](../download.md)选择适合当前系统的 Desktop 安装包。Linux 无桌面主机应选择 Headless deb/rpm，并按[部署与配置](./deployment.md)完成 CLI 和 systemd 配置。
 
 首次运行后，PrintBridge 会常驻在用户电脑上，并启动本机服务：
 
@@ -46,6 +46,13 @@ ws://127.0.0.1:17890/ws
 ```
 
 同机 Web 页面通常连接 `127.0.0.1`。如果要从局域网其他设备连接这台电脑上的 Agent，需要使用这台电脑的局域网 IP，并配置 IP 白名单。
+
+可以通过 CLI 检查 Agent 状态和运行环境：
+
+```bash
+print-bridge status
+print-bridge doctor
+```
 
 ## 2. 选择默认打印机和纸张
 
