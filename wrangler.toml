@@ -1,2 +1,6 @@
 name = "print-bridge-site"
 pages_build_output_dir = "docs/.vitepress/dist"
+
+[[r2_buckets]]
+binding = "PACKAGES"
+bucket_name = "printbridge-packages"
