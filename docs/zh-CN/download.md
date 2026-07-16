@@ -13,6 +13,76 @@ import DownloadOptions from '../.vitepress/theme/components/DownloadOptions.vue'
 
 <DownloadOptions />
 
+## 使用包管理器安装
+
+### Homebrew（macOS）
+
+```bash
+brew tap vergil-lai/tap
+brew install --cask printbridge
+```
+
+### APT（Debian/Ubuntu）
+
+首次安装时添加 PrintBridge 软件源和签名公钥：
+
+```bash
+sudo install -d -m 0755 /etc/apt/keyrings
+
+curl -fsSL \
+  https://printbridge.pages.dev/apt/printbridge-archive-keyring.gpg \
+  | sudo tee /etc/apt/keyrings/printbridge.gpg >/dev/null
+
+sudo tee /etc/apt/sources.list.d/printbridge.sources >/dev/null <<'EOF'
+Types: deb
+URIs: https://printbridge.pages.dev/apt
+Suites: stable
+Components: main
+Signed-By: /etc/apt/keyrings/printbridge.gpg
+EOF
+
+sudo apt update
+```
+
+安装桌面版：
+
+```bash
+sudo apt install print-bridge
+```
+
+无桌面环境请选择 Headless 服务端版本：
+
+```bash
+sudo apt install print-bridge-server
+```
+
+仓库签名公钥指纹为 `7D9F6986BAD473CE95B1FDA55B1B363C885CD16D`。
+
+### RPM/DNF（Fedora/RHEL/Rocky Linux/AlmaLinux）
+
+首次安装时添加 PrintBridge 软件源：
+
+```bash
+curl -fsSL https://printbridge.pages.dev/rpm/printbridge.repo \
+  | sudo tee /etc/yum.repos.d/printbridge.repo >/dev/null
+
+sudo dnf makecache
+```
+
+安装桌面版：
+
+```bash
+sudo dnf install print-bridge
+```
+
+无桌面环境请选择 Headless 服务端版本：
+
+```bash
+sudo dnf install print-bridge-server
+```
+
+首次刷新仓库时，DNF 会要求确认导入 PrintBridge GPG 公钥。公钥指纹同样为 `7D9F6986BAD473CE95B1FDA55B1B363C885CD16D`。
+
 ## 如何选择
 
 - **Desktop 桌面版**：适合 Windows、macOS 和带桌面环境的 Linux 工作站，提供设置界面和托盘常驻。
