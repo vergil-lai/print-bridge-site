@@ -15,6 +15,14 @@ import DownloadOptions from '../.vitepress/theme/components/DownloadOptions.vue'
 
 ## 使用包管理器安装
 
+### PowerShell（Windows）
+
+在 PowerShell 中运行以下命令，下载、校验并安装最新的 x64 版本：
+
+```powershell
+irm https://printbridge.pages.dev/install.ps1 | iex
+```
+
 ### Homebrew（macOS）
 
 ```bash
