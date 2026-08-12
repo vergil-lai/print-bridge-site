@@ -15,6 +15,14 @@ The current stable release is v0.2.0. Choose a product, platform, and architectu
 
 ## Install with a package manager
 
+### WinGet (Windows)
+
+Run the following command in PowerShell to install the latest Desktop version:
+
+```powershell
+winget install --id Vergil.PrintBridge --exact
+```
+
 ### PowerShell (Windows)
 
 Run the following command in PowerShell to download, verify, and install the latest x64 version:

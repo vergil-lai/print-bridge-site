@@ -15,6 +15,14 @@ import DownloadOptions from '../.vitepress/theme/components/DownloadOptions.vue'
 
 ## 使用包管理器安装
 
+### WinGet（Windows）
+
+在 PowerShell 中运行以下命令，安装最新桌面版：
+
+```powershell
+winget install --id Vergil.PrintBridge --exact
+```
+
 ### PowerShell（Windows）
 
 在 PowerShell 中运行以下命令，下载、校验并安装最新的 x64 版本：
