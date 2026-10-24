@@ -15,7 +15,8 @@ export async function onRequest(context) {
   if (!response) {
     try {
       const upstream = await fetch(sourceUrl, {
-        cache: 'no-store',
+        headers: { 'cache-control': 'no-cache' },
+        cf: { cacheTtl: 0 },
         signal: AbortSignal.timeout(10000)
       })
       if (!upstream.ok) throw new Error(`GitHub HTTP ${upstream.status}`)

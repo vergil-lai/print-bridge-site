@@ -53,7 +53,9 @@ test('fetches GitHub and returns all download formats with a five minute edge TT
   assert.match(manifest.platforms['darwin-aarch64-dmg'].url, /printbridge-v0\.2\.7\/PrintBridge_0\.2\.7_aarch64\.dmg$/)
   const [url, options] = env.upstream.mock.calls[0].arguments
   assert.equal(url, 'https://github.com/vergil-lai/print-bridge/releases/latest/download/latest.json')
-  assert.equal(options.cache, 'no-store')
+  assert.equal(options.cache, undefined)
+  assert.equal(options.headers['cache-control'], 'no-cache')
+  assert.equal(options.cf.cacheTtl, 0)
   assert.ok(options.signal instanceof AbortSignal)
 })
 
