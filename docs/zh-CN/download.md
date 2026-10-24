@@ -9,7 +9,7 @@ import DownloadOptions from '../.vitepress/theme/components/DownloadOptions.vue'
 
 # 下载 PrintBridge
 
-当前稳定版本为 v0.2.0。请选择产品、平台和架构进行下载。
+请选择产品、平台和架构进行下载。
 
 <DownloadOptions />
 

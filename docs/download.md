@@ -9,7 +9,7 @@ import DownloadOptions from './.vitepress/theme/components/DownloadOptions.vue'
 
 # Download PrintBridge
 
-The current stable release is v0.2.0. Choose a product, platform, and architecture.
+Choose a product, platform, and architecture.
 
 <DownloadOptions />
 
